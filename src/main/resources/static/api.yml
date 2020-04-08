@@ -225,6 +225,7 @@ components:
       - $ref: '#/components/schemas/CreateGossipRequest'
       - type: object
         description: A gossip talk.
+        required: [ id, username, datetime ]
         properties:
           id:
             type: string
@@ -234,6 +235,10 @@ components:
             type: string
             pattern: '^[a-z]{3,10}$'
             description: A short nick name of the user.
+          datetime:
+            type: string
+            format: date-time
+            description: When this gossip was created.
 
     GossipList:
       type: object

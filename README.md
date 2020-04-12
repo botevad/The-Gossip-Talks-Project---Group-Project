@@ -17,3 +17,13 @@
 
 ## Бележки
 `api.yml` - документацията на REST API е създадено с помощта на http://editor.swagger.io. Всъщност се използва [OpenAPI](https://swagger.io/docs/specification/about/) формат.
+
+## Web Приложение
+Web приложението е достъпно като отворите http://localhost:8080 в web browser.
+
+To е разработено с помощта на mock server. За стартирането му е нужно:
+1. Да имате инсталиран docker.
+2. Да пуснете следният команден ред в `src/main/resources/static`:
+```shell script
+docker run -p 8000:8000 -v `pwd`/api.yml:/api.yml danielgtaylor/apisprout --validate-server /api.yml  
+```

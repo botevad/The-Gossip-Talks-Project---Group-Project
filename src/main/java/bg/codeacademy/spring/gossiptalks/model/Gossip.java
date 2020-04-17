@@ -23,7 +23,7 @@ public class Gossip
   private String gossip;
 
   @ManyToOne(targetEntity = User.class)
-  @JoinColumn(name = "user_name", referencedColumnName = "username")
+  @JoinColumn(name = "user_id", referencedColumnName = "id")
   private User user;
 
   @Column(name = "date", updatable = false, columnDefinition = "timestamp default current_timestamp")

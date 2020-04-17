@@ -30,10 +30,8 @@ public class UserServiceImpl implements UserService
   @Override
   public List<User> findAllUsers(String name)
   {
-    return userRepository.findAllByUsernameContaining(name)
-        .stream()
-        .sorted(Comparator.comparing(User::userActivity).reversed())
-        .collect(Collectors.toList());
+    return userRepository.findAllByUsernameContaining(name);
+
   }
 
   public void saveUser(String password, String username, String name, String email)

@@ -36,10 +36,10 @@ public class User
   @Column(name = "following", columnDefinition = "boolean default false")
   private Boolean following;
 
-  @OneToMany(mappedBy = "user")
-  private List<Gossip> gossips;
+//  @OneToMany(mappedBy = "user_id")
+//  private List<Gossip> gossips;
 
-  public Integer userActivity(){
-    return this.getGossips().size();
-  }
+//  public Integer userActivity(){
+//    return this.getGossips().size();
+//  }
 }

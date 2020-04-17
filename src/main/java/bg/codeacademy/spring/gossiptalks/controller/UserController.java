@@ -13,10 +13,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/api/v1/users", headers = "content-type=multipart/form-data", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+@RequestMapping(value = "/api/v1/users")
 public class UserController
 {
   private final UserServiceImpl userService;
@@ -29,30 +30,34 @@ public class UserController
     this.modelMapper = modelMapper;
   }
 
-  @GetMapping()
+  @GetMapping
   @ResponseBody
   public ResponseEntity<List<UserDto>> showAllUsers(String name){
     List<User> showUsers = userService.findAllUsers(name);
     List<UserDto> showUsersDto = new ArrayList<>();
-    for (User user: showUsers) {
-      showUsersDto.add(modelMapper.map(user, UserDto.class));
+    for (User user : showUsers) {
+      UserDto userDto = new UserDto();
+      userDto.setUsername(user.getUsername());
+      userDto.setName(user.getName());
+      userDto.setEmail(user.getEmail());
+      userDto.setFollowing(user.getFollowing());
+      showUsersDto.add(userDto);
     }
+
     return ResponseEntity.ok(showUsersDto);
   }
 
   @PostMapping()
   public ResponseEntity<Void> createUser(@RequestBody UserRegistrationDto userRegistrationDto){
-//    UserRegistrationDto userRegistrationDto = new UserRegistrationDto();
-    ObjectMapper objectMapper = new ObjectMapper();
-//    httpHeaders.add(MediaType.MULTIPART_FORM_DATA, );
-    if(userService.isUserExist(modelMapper.map(userRegistrationDto, User.class))){
-      return new ResponseEntity<Void>(HttpStatus.CONFLICT);
-    }
+//    if(userService.isUserExist(userRegistrationDto.getUsername(), userRegistrationDto.getEmail()))){
+//      return new ResponseEntity<Void>(HttpStatus.CONFLICT);
+//    }
 
-    userService.saveUser(objectMapper.readValue(userRegistrationDto,User.class));
-//    userRegistrationDto.getEmail(),userRegistrationDto.getUsername(),userRegistrationDto.getName(),userRegistrationDto.getPassword()
+    userService.saveUser(userRegistrationDto.getEmail(),
+        userRegistrationDto.getUsername(),
+        userRegistrationDto.getName(),
+        userRegistrationDto.getPassword());
     return new ResponseEntity<Void>(HttpStatus.CREATED);
   }
-//  modelMapper.map(userRegistrationDto, User.class)
 
 }

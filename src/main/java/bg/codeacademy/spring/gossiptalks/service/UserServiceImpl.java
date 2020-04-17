@@ -47,8 +47,9 @@ public class UserServiceImpl implements UserService
   }
 
 
-  public Boolean isUserExist(User user)
-  {
-    return userRepository.existsById(user.getId());
-  }
+//  public Boolean isUserExist(String username, String password)
+//  {
+//    if (userRepository.findB)
+//    return userRepository.existsBy(user.getId());
+//  }
 }

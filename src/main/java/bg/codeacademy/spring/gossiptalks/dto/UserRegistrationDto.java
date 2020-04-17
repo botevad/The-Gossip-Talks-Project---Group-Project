@@ -12,6 +12,7 @@ public class UserRegistrationDto
   private String email;
   private String username;
   private String name;
+  private Boolean following;
   private String password;
   private String passwordConfirmation;
 

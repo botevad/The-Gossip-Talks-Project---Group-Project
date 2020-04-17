@@ -34,13 +34,8 @@ public class UserServiceImpl implements UserService
 
   }
 
-  public void saveUser(String password, String username, String name, String email)
+  public void saveUser(User user)
   {
-    User user = new User();
-    user.setEmail(email);
-    user.setUsername(username);
-    user.setName(name);
-    user.setPassword(password);
     userRepository.save(user);
   }
 

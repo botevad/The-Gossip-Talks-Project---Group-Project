@@ -10,16 +10,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/api/v1/users")
 public class UserController
 {
-  private final UserServiceImpl userService;
+  private final UserServiceImpl   userService;
   private final GossipServiceImpl gossipService;
-  private final ModelMapper     modelMapper;
+  private final ModelMapper       modelMapper;
 
   @Autowired
   public UserController(UserServiceImpl userService, GossipServiceImpl gossipService, ModelMapper modelMapper)
@@ -31,11 +35,9 @@ public class UserController
 
   @GetMapping
   @ResponseBody
-  public ResponseEntity<List<UserDto>> showAllUsers(String name){
+  public ResponseEntity<List<UserDto>> showAllUsers(String name)
+  {
     List<User> showUsers = userService.findAllUsers(name);
-//        .stream()
-//        .sorted(Comparator.comparing(User::userActivity).reversed())
-//        .collect(Collectors.toList());
     List<UserDto> showUsersDto = new ArrayList<>();
     for (User user : showUsers) {
       UserDto userDto = new UserDto();
@@ -46,20 +48,29 @@ public class UserController
       userDto.setGossips(gossipService.findAllGossipsByUser(user));
       showUsersDto.add(userDto);
     }
-
+    showUsersDto.stream()
+        .sorted(Comparator.comparing(UserDto::gossipsNumber))
+        .collect(Collectors.toList());
     return ResponseEntity.ok(showUsersDto);
   }
 
   @PostMapping()
-  public ResponseEntity<Void> createUser(@RequestBody UserRegistrationDto userRegistrationDto){
+  public ResponseEntity<Void> createUser(@RequestParam(value = "email", required = true) String email,
+                                         @RequestParam(value = "username", required = true) String username,
+                                         @RequestParam(value = "name", required = false) String name,
+                                         @RequestParam(value = "following", required = false) Boolean following,
+                                         @RequestParam(value = "password", required = true) String password)
+  {
 //    if(userService.isUserExist(userRegistrationDto.getUsername(), userRegistrationDto.getEmail()))){
 //      return new ResponseEntity<Void>(HttpStatus.CONFLICT);
 //    }
-
-    userService.saveUser(userRegistrationDto.getEmail(),
-        userRegistrationDto.getUsername(),
-        userRegistrationDto.getName(),
-        userRegistrationDto.getPassword());
+    User user = new User();
+    user.setEmail(email);
+    user.setUsername(username);
+    user.setName(name);
+    user.setFollowing(following);
+    user.setPassword(password);
+    userService.saveUser(user);
     return new ResponseEntity<Void>(HttpStatus.CREATED);
   }
 

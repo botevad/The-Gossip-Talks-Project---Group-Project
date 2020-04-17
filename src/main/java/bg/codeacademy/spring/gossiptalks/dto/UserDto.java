@@ -20,4 +20,8 @@ public class UserDto
   private String name;
   private Boolean following;
   private List<Gossip> gossips;
+
+  public Integer gossipsNumber(){
+    return this.gossips.size();
+  }
 }

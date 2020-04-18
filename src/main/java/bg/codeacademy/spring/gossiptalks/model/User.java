@@ -17,16 +17,16 @@ public class User
 {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
-  private Integer       id;
+  private Integer    id;
   @Column(unique = true, nullable = false)
   @NotBlank
-  private String        username;
+  private String     username;
   @Column(nullable = false)
-  private String        password;
+  private String     password;
   @Column(unique = true, nullable = false)
-  private String        email;
+  private String     email;
   @Column(nullable = false)
-  private String        name;
+  private String     name;
   @ManyToMany
   private List<User> friendList;
 

@@ -24,5 +24,4 @@ public class Gossips
   private User          user;
   @Column(updatable = false)
   private LocalDateTime date = LocalDateTime.now();
-
 }

@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import javax.persistence.*;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -33,13 +34,17 @@ public class User
   @Column(name = "name", nullable = false)
   private String  name;
 
-  @Column(name = "following", columnDefinition = "boolean default false")
-  private Boolean following;
+//  @Column(name = "following", columnDefinition = "boolean default false")
+//  private Boolean following;
 
-//  @OneToMany(mappedBy = "user_id")
-//  private List<Gossip> gossips;
+//  @OneToMany
+//  private List<User> friends;
 
-//  public Integer userActivity(){
-//    return this.getGossips().size();
-//  }
+  private boolean isEnabled = true;
+
+//  private Role      role;
+//  private Set<Role> authorities;
+
+  @ManyToMany
+  private List<User> friendList;
 }

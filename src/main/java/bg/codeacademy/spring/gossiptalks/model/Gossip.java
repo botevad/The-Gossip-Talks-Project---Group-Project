@@ -23,9 +23,9 @@ public class Gossip
   private String gossip;
 
   @ManyToOne(targetEntity = User.class)
-  @JoinColumn(name = "user_id", referencedColumnName = "id")
+  @JoinColumn(name = "username", referencedColumnName = "username")
   private User user;
 
   @Column(name = "date", updatable = false, columnDefinition = "timestamp default current_timestamp")
-  private LocalDateTime date;
+  private LocalDateTime date = LocalDateTime.now();
 }

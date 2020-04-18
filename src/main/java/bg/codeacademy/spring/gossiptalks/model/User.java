@@ -27,15 +27,9 @@ public class User
   private String        email;
   @Column(nullable = false)
   private String        name;
-  @Column(columnDefinition = "boolean default false")
-  private Boolean       following;
-  @OneToMany(mappedBy = "user")
-  private List<Gossips> gossips;
 
-  public Integer userActivity()
-  {
-    return this.getGossips().size();
-  }
+  @ManyToMany
+  private List<User> friendList;
 
 }
 

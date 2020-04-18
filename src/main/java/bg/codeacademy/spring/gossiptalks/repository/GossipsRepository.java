@@ -7,5 +7,4 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface GossipsRepository extends JpaRepository<Gossips, Integer>
 {
-
 }

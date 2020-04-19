@@ -1,102 +1,76 @@
 package bg.codeacademy.spring.gossiptalks.service;
 
-import bg.codeacademy.spring.gossiptalks.dto.UserRegistrationDto;
 import bg.codeacademy.spring.gossiptalks.model.User;
 import bg.codeacademy.spring.gossiptalks.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService
 {
-  private final UserRepository userRepository;
+  private final UserRepository  userRepository;
   private final PasswordEncoder passwordEncoder;
-  private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
   @Autowired
-  public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, BCryptPasswordEncoder bCryptPasswordEncoder)
+  public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder)
   {
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
-    this.bCryptPasswordEncoder = bCryptPasswordEncoder;
   }
 
   @Override
-  public void addUser(Optional<User> user)
+  public Optional<List<User>> getAllUsers(String name)
   {
-
+    if (userRepository != null) {
+      return userRepository.findAllByUsernameContaining(name);
+    }
+    return Optional.empty();
   }
 
   @Override
-  public List<User> findAllUsers(String name)
+  public Boolean changePassword(Principal principal, String oldPassword, String newPassword)
   {
-    return userRepository.findAllByUsernameContaining(name);
+    Optional<User> currentUser = userRepository.findByName(principal.getName());
 
+    if (passwordEncoder.matches(oldPassword, currentUser.get().getPassword())) {
+      currentUser.get().setPassword(passwordEncoder.encode(newPassword));
+      userRepository.save(currentUser.get());
+      return true;
+    }
+    return false;
   }
-
+  @Override
   public void saveUser(User user)
   {
     userRepository.save(user);
   }
 
-
-//  public Boolean isUserExist(String username, String password)
-//  {
-//    if (userRepository.findB)
-//    return userRepository.existsBy(user.getId());
-//  }
-
   @Override
-  public boolean changePassword(Principal principal, String oldPassword, String newPassword)
+  public Optional<User> getUserByName(String name)
   {
-    Optional<User> user = userRepository.findByUsername(principal.getName());
-      if (new BCryptPasswordEncoder().matches(oldPassword, user.get().getPassword())) {
-        user.get().setPassword(passwordEncoder.encode(newPassword));
-        userRepository.saveAndFlush(user.get());
-        return true;
-
-    }
-    return false;
-  }
-  @Override
-  public Optional<User> getUser(String userName)
-  {
-    Optional<User> user = userRepository.findByUsername(userName);
-    if (user.isPresent() && user.get().isEnabled()) {
+    Optional<User> user = userRepository.findByName(name);
+    if (user.isPresent()) {
       return user;
     }
     return Optional.empty();
   }
   @Override
-  public void createUser(String username, String password)
+  public Optional<User> getUserByUsername(String username)
   {
-    User user = new User();
-    user.setUsername(username);
-    user.setPassword(passwordEncoder.encode(password));
-    userRepository.saveAndFlush(user);
-  }
-  @Override
-  public List<User> getUsers()
-  {
-    List<User> users = userRepository.findAll();
-    Iterator<User> i = users.iterator();
-    while (i.hasNext()) {
-      User user = i.next();
-      if (!user.isEnabled()) {
-        i.remove();
-      }
+    Optional<User> user = userRepository.findByUsername(username);
+    if (user.isPresent()) {
+      return user;
     }
-    return users;
+    return Optional.empty();
   }
   @Override
-  public void register(UserRegistrationDto userRegistrationDto) {
-    bCryptPasswordEncoder.encode(userRegistrationDto.getPassword());
+  public List<User> getFollowList(String name)
+  {
+ return userRepository.findByName(name).get().getFriendList();
   }
 }

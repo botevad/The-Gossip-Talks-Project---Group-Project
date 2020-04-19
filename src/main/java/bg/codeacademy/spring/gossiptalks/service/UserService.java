@@ -1,6 +1,5 @@
 package bg.codeacademy.spring.gossiptalks.service;
 
-import bg.codeacademy.spring.gossiptalks.dto.UserRegistrationDto;
 import bg.codeacademy.spring.gossiptalks.model.User;
 
 import java.security.Principal;
@@ -9,17 +8,17 @@ import java.util.Optional;
 
 public interface UserService
 {
-  void addUser(Optional<User> user);
-  List<User> findAllUsers(String username);
 
-  boolean changePassword(Principal principal, String oldPassword, String newPassword);
+  Optional<List<User>> getAllUsers(String name);
 
-  Optional<User> getUser(String userName);
+  Boolean changePassword(Principal principal, String oldPassword, String newPassword);
 
-  void createUser(String username, String password);
+  void saveUser(User user);
 
-  List<User> getUsers();
+  Optional<User> getUserByName(String name);
 
-  void register(UserRegistrationDto userRegistrationDto);
+  Optional<User> getUserByUsername(String username);
+
+  List<User> getFollowList(String name);
 }
 

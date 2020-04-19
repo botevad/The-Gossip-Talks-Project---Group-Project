@@ -10,7 +10,7 @@ import org.testng.annotations.Test;
 // This line will actually run the spring application on a random web port
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 // Extend AbstractTestNGSpringContextTests to use estNG tests in Spring Boot
-public class GossipTalksApplicationTests extends AbstractTestNGSpringContextTests
+public class MainTests extends AbstractTestNGSpringContextTests
 {
 
 	// get the random port, used by the spring application

@@ -11,21 +11,17 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "gossips")
+@Table
 public class Gossip
 {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
-  @Column(name = "id", updatable = false, nullable = false)
   private Integer id;
-
-@Column(name = "gossip", length = 255)
+  @Column(updatable = false)
   private String gossip;
-
   @ManyToOne(targetEntity = User.class)
   @JoinColumn(name = "username", referencedColumnName = "username")
   private User user;
-
-  @Column(name = "date", updatable = false, columnDefinition = "timestamp default current_timestamp")
+  @Column(updatable = false)
   private LocalDateTime date = LocalDateTime.now();
 }

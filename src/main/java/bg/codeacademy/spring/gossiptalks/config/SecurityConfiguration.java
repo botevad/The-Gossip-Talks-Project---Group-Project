@@ -19,31 +19,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter
   {
     http
         .authorizeRequests()
-        .antMatchers("/api/v1/users/**").permitAll()
-        .anyRequest().authenticated()
-        .and()
-        .csrf().disable();
+        .antMatchers("/**").permitAll()
+        .anyRequest().authenticated();
 
-//    http
-//        .authorizeRequests()
-//        .antMatchers(HttpMethod.GET, "/browser/index.html#/").hasAnyRole(Role.USER.toString(), Role.ADMIN.toString())
-//        .antMatchers(HttpMethod.GET, "/api/v1/books/**").hasAnyRole(Role.USER.toString(), Role.ADMIN.toString())
-//        .antMatchers(HttpMethod.POST, "/api/v1/books/**").hasRole(Role.ADMIN.toString())
-//        .antMatchers(HttpMethod.DELETE, "/api/v1/books/**").hasRole(Role.ADMIN.toString())
-//
-//        .antMatchers(HttpMethod.GET, "/api/v1/ratings/**").hasAnyRole(Role.USER.toString(), Role.ADMIN.toString())
-//        .antMatchers(HttpMethod.POST, "/api/v1/ratings/**").hasAnyRole(Role.USER.toString(), Role.ADMIN.toString())
-//
-//        .antMatchers(HttpMethod.GET, "/api/v1/users/**").hasRole(Role.ADMIN.toString())
-//        .antMatchers(HttpMethod.POST, "/api/v1/users/{^[\\d]$}/password").hasAnyRole(Role.USER.toString(), Role.ADMIN.toString())
-//        .antMatchers(HttpMethod.DELETE, "/api/v1/users/**").hasRole(Role.ADMIN.toString())
-//        .antMatchers(HttpMethod.PUT, "/api/v1/users/**").hasRole(Role.ADMIN.toString())
-//
-//        .and()
-//        .httpBasic();
-//
-//    http.csrf().disable();
-//    http.headers().frameOptions().disable();
+    http.csrf().disable();
+    http.headers().frameOptions().disable();
   }
 
   @Bean

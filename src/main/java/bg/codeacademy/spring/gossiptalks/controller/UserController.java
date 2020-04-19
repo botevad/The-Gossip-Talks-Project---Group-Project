@@ -99,18 +99,6 @@ public class UserController
     return ResponseEntity.ok(currentUserDto);
   }
 
-//  @PostMapping(value = "me")
-//  public @ResponseBody
-//  ResponseEntity<?> changePassword(@RequestParam(value = "password") String password,
-//                                   @RequestParam(value = "oldPassword") String oldPassword,
-//
-//                                  )
-//  {
-//    if (!userName.equals(principal.getName()) || !userService.changePassword(principal, changePasswordDto.oldPassword, changePasswordDto.newPassword)) {
-//      return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Wrong password or user name");
-//    }
-//    return ResponseEntity.ok().build();
-//  }
 
   @PostMapping("/me")
   public ResponseEntity<Void> changeUserPassword(@RequestParam(value = "password", required = true) String password,
@@ -122,12 +110,7 @@ public class UserController
     if (currentUser.equals(oldPassword) && passwordConfirmation.equals(password)) {
       currentUser.setPassword(password);
     }
-//    User user = (SecurityContextHolder.getContext().getAuthentication().getName());
 
-//    if (!userService.checkIfValidOldPassword(principal, oldPassword)) {
-//      throw new InvalidOldPasswordException();
-
-//        GenericResponse(messages.getMessage("message.updatePasswordSuc", null, locale));
     return ResponseEntity.ok().build();
   }
 

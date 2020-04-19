@@ -5,6 +5,7 @@ import bg.codeacademy.spring.gossiptalks.model.User;
 import bg.codeacademy.spring.gossiptalks.service.GossipServiceImpl;
 import bg.codeacademy.spring.gossiptalks.service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,55 +30,48 @@ public class UserController
     this.gossipService = gossipService;
   }
 
-  @GetMapping()
+  @GetMapping
   @ResponseBody
-  public ResponseEntity<List<UserDto>> showAllUsers(@RequestParam(value = "name") String name,
-                                                    @RequestParam(value = "f") boolean f,
-                                                    Principal principal)
+  public ResponseEntity<List<UserDto>> showAllUsers(String name, Boolean following, Principal principal)
   {
-    Optional<User> currentUser = userService.getUserByName(principal.getName());
+    Optional <User> currentUser = userService.getUserByName(principal.getName());
     Optional<List<User>> allUsersWithName = userService.getAllUsers(name);
-    if (allUsersWithName.isPresent()) {
-      List<User> showUsers;
+    List<User> showUsers;
 
-      if (f == true) {
-        showUsers = allUsersWithName
-            .get()
-            .stream()
-            .filter(user -> currentUser.get().getFriendList().contains(user))
-            .collect(Collectors.toList());
-      }
-      else {
-        showUsers = allUsersWithName.get();
-      }
-      List<UserDto> showUsersDto = new ArrayList<>();
-      for (User user : showUsers) {
-        UserDto userDto = new UserDto();
-        userDto.setUsername(user.getUsername());
-        userDto.setName(user.getName());
-        userDto.setEmail(user.getEmail());
-        userDto.setFollowing(true);
-        showUsersDto.add(userDto);
-      }
-//    TODO:
-//    showUsersDto.stream()
-//        .sorted(Comparator.comparing(userService.getFollowList()))
-//        .collect(Collectors.toList());
-
-      return ResponseEntity.ok(showUsersDto);
+    if (following == true) {
+      showUsers = allUsersWithName
+          .get()
+          .stream()
+          .filter(user -> currentUser.get().getFriendList().contains(user)).collect(Collectors.toList());
     }
-    return ResponseEntity.notFound().build();
+    else {
+      showUsers = allUsersWithName.get();
+    }
+    List<UserDto> showUsersDto = new ArrayList<>();
+    for (User user : showUsers) {
+      UserDto userDto = new UserDto();
+      userDto.setUsername(user.getUsername());
+      userDto.setName(user.getName());
+      userDto.setEmail(user.getEmail());
+      userDto.setGossips(gossipService.findAllGossipsByUser(user));
+      showUsersDto.add(userDto);
+    }
+    showUsersDto.stream()
+        .sorted(Comparator.comparing(UserDto::gossipsNumber))
+        .collect(Collectors.toList());
+
+    return ResponseEntity.ok(showUsersDto);
   }
 
-  @PostMapping(consumes = {"multipart/form-data"})
-  //TODO: Multipart/form-data request.
+  @PostMapping()
   public ResponseEntity<Void> createUser(@RequestParam(value = "email", required = true) String email,
-                                         @RequestParam(value = "name", required = false) String name,
-                                         @RequestParam(value = "password", required = true) String password,
                                          @RequestParam(value = "username", required = true) String username,
+                                         @RequestParam(value = "name", required = false) String name,
                                          @RequestParam(value = "following", required = false) Boolean following,
+                                         @RequestParam(value = "password", required = true) String password,
                                          Principal principal)
   {
+
     User user = new User();
     user.setEmail(email);
     user.setUsername(username);
@@ -85,11 +79,11 @@ public class UserController
     user.setName(name);
     userService.saveUser(user);
     if (following == true) {
-      Optional<List<User>> currentUserFriends = userService.getFollowList(principal.getName());
-      currentUserFriends.get().add(user);
-      user.setFriendList(currentUserFriends.get());
+      List<User> currentUserList = userService.getFollowList(principal.getName());
+      currentUserList.add(user);
+      user.setFriendList(currentUserList);
     }
-    return ResponseEntity.ok().build();
+    return new ResponseEntity<Void>(HttpStatus.CREATED);
   }
 
   @GetMapping("/me")
@@ -105,14 +99,35 @@ public class UserController
     return ResponseEntity.ok(currentUserDto);
   }
 
+//  @PostMapping(value = "me")
+//  public @ResponseBody
+//  ResponseEntity<?> changePassword(@RequestParam(value = "password") String password,
+//                                   @RequestParam(value = "oldPassword") String oldPassword,
+//
+//                                  )
+//  {
+//    if (!userName.equals(principal.getName()) || !userService.changePassword(principal, changePasswordDto.oldPassword, changePasswordDto.newPassword)) {
+//      return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Wrong password or user name");
+//    }
+//    return ResponseEntity.ok().build();
+//  }
+
   @PostMapping("/me")
   public ResponseEntity<Void> changeUserPassword(@RequestParam(value = "password", required = true) String password,
                                                  @RequestParam(value = "passwordConfirmation", required = true) String passwordConfirmation,
                                                  @RequestParam(value = "oldPassword", required = true) String oldPassword,
                                                  Principal principal)
   {
-//    userService.changePassword(userService.getUserByName(principal.getName()).get(), oldPassword, password);
+    User currentUser = userService.getUserByName(principal.getName()).get();
+    if (currentUser.equals(oldPassword) && passwordConfirmation.equals(password)) {
+      currentUser.setPassword(password);
+    }
+//    User user = (SecurityContextHolder.getContext().getAuthentication().getName());
 
+//    if (!userService.checkIfValidOldPassword(principal, oldPassword)) {
+//      throw new InvalidOldPasswordException();
+
+//        GenericResponse(messages.getMessage("message.updatePasswordSuc", null, locale));
     return ResponseEntity.ok().build();
   }
 
@@ -121,14 +136,14 @@ public class UserController
                                   @RequestParam(value = "follow", required = true) Boolean follow,
                                   Principal principal)
   {
-    Optional<List<User>> currentUserList = userService.getFollowList(principal.getName());
+    List<User> currentUserList = userService.getFollowList(principal.getName());
     if (follow == true) {
-      currentUserList.get().add(userService.getUserByUsername(username).get());
+      currentUserList.add(userService.getUserByUsername(username).get());
     }
     else {
-      currentUserList.get().remove(userService.getUserByUsername(username).get());
+      currentUserList.remove(userService.getUserByUsername(username).get());
     }
-    userService.getUserByName(principal.getName()).get().setFriendList(currentUserList.get());
+    userService.getUserByName(principal.getName()).get().setFriendList(currentUserList);
     return ResponseEntity.ok().build();
   }
 

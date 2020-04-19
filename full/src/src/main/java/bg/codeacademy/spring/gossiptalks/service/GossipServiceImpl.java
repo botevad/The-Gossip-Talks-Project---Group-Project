@@ -1,6 +1,6 @@
 package bg.codeacademy.spring.gossiptalks.service;
 
-import bg.codeacademy.spring.gossiptalks.model.Gossips;
+import bg.codeacademy.spring.gossiptalks.model.Gossip;
 import bg.codeacademy.spring.gossiptalks.model.User;
 import bg.codeacademy.spring.gossiptalks.repository.GossipsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,17 +11,17 @@ import java.util.List;
 @Service
 public class GossipServiceImpl implements GossipService
 {
-  private final GossipsRepository gossipsRepository;
+  private final GossipRepository gossipRepository;
 
   @Autowired
-  public GossipServiceImpl(GossipsRepository gossipsRepository)
+  public GossipServiceImpl(GossipRepository gossipRepository)
   {
-    this.gossipsRepository = gossipsRepository;
+    this.gossipRepository = gossipRepository;
   }
 
   @Override
-  public List<Gossips> findAllGossipsByUser(User user)
+  public List<Gossip> findAllGossipsByUser(User user)
   {
-    return gossipsRepository.findAllByUser(user);
+    return gossipRepository.findAllByUser(user);
   }
 }

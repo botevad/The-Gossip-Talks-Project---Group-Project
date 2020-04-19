@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,20 +27,27 @@ public class UserServiceImpl implements UserService
   public Optional<List<User>> getAllUsers(String name)
   {
     if (userRepository != null) {
-      return userRepository.findAllByNameContaining(name);
+      return userRepository.findAllByUsernameContaining(name);
     }
     return Optional.empty();
   }
 
   @Override
-  public Boolean changePassword(User user, String oldPassword, String password)
+  public Boolean changePassword(Principal principal, String oldPassword, String newPassword)
   {
-    if (passwordEncoder.matches(oldPassword, user.getPassword())) {
-      user.setPassword(passwordEncoder.encode(password));
-      userRepository.save(user);
+    Optional<User> currentUser = userRepository.findByName(principal.getName());
+
+    if (passwordEncoder.matches(oldPassword, currentUser.get().getPassword())) {
+      currentUser.get().setPassword(passwordEncoder.encode(newPassword));
+      userRepository.save(currentUser.get());
       return true;
     }
     return false;
+  }
+  @Override
+  public void saveUser(User user)
+  {
+    userRepository.save(user);
   }
 
   @Override
@@ -51,7 +59,6 @@ public class UserServiceImpl implements UserService
     }
     return Optional.empty();
   }
-
   @Override
   public Optional<User> getUserByUsername(String username)
   {
@@ -61,20 +68,9 @@ public class UserServiceImpl implements UserService
     }
     return Optional.empty();
   }
-
   @Override
-  public Optional<List<User>> getFollowList(String name)
+  public List<User> getFollowList(String name)
   {
-    if (!getFollowList(name).get().isEmpty()) {
-      return Optional.of(userRepository.findByName(name).get().getFriendList());
-    }
-    else {
-      return Optional.empty();
-    }
-  }
-
-  public void saveUser(User user)
-  {
-    userRepository.save(user);
+ return userRepository.findByName(name).get().getFriendList();
   }
 }

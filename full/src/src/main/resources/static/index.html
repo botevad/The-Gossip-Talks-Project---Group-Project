@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" crossorigin="anonymous"
+        href="https://stackpath.bootstrapcdn.com/bootswatch/4.4.1/lumen/bootstrap.min.css">
+  <link rel="stylesheet" crossorigin="anonymous"
+        href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet"
+        href="simple-sidebar.css">
+
+  <title>Gossip Talks</title>
+</head>
+<body>
+
+
+<div class="d-flex" id="wrapper">
+
+  <!-- Sidebar -->
+  <div class="bg-light border-right" id="sidebar-wrapper">
+    <div class="sidebar-heading">Friends</div>
+    <div id="usersFriends" class="list-group list-group-flush">
+      <a href="#" class="list-group-item list-group-item-action bg-light">Dashboard</a>
+      <a href="#" class="list-group-item list-group-item-action bg-light">Shortcuts</a>
+      <a href="#" class="list-group-item list-group-item-action bg-light">Overview</a>
+      <a href="#" class="list-group-item list-group-item-action bg-light">Events</a>
+      <a href="#" class="list-group-item list-group-item-action bg-light">Profile</a>
+      <a href="#" class="list-group-item list-group-item-action bg-light">Status</a>
+    </div>
+    <div class="sidebar-heading">Others</div>
+    <div id="usersOthers" class="list-group list-group-flush">
+    </div>
+  </div>
+  <!-- /#sidebar-wrapper -->
+
+  <!-- Page Content -->
+  <div id="page-content-wrapper">
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <button class="btn btn-primary" id="menu-toggle">
+        <i class="fa fa-users"></i>
+      </button>
+
+      <button class="navbar-toggler btn" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+              aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
+          <li class="nav-item active">
+            <a class="nav-link" href="#">
+              <i class="fa fa-home"></i>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" data-toggle="modal" data-target="#changePasswordModal">
+              <i class="fa fa-user"></i>
+              <span id="currentUser">The User</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="container-fluid">
+      <h1 class="mt-4">Post Gossip</h1>
+      <form id="postGossip">
+        <div class="form-row">
+          <div class="form-group col-md-10">
+            <input type="text" class="form-control m-2" name="/text">
+          </div>
+          <div class="form-group col-md-2">
+            <button type="submit" class="btn btn-primary m-2">Say</button>
+          </div>
+        </div>
+      </form>
+
+      <h1>Your Gossip List</h1>
+      <div id="posts" class="list-group">
+        <a href="#" class="list-group-item list-group-item-action active">
+          <div class="d-flex w-100 justify-content-between">
+            <h5>ivan</h5>
+            <small>3 days ago</small>
+          </div>
+          <p class="mb-1">Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius
+            blandit.</p>
+        </a>
+      </div>
+
+    </div>
+  </div>
+  <!-- /#page-content-wrapper -->
+
+</div>
+<!-- /#wrapper -->
+
+<div class="modal fade" id="changePasswordModal" tabindex="-1" role="dialog" aria-labelledby="changePasswordModalTitle"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="changePasswordModalTitle">Change Password</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="passwordForm">
+          <div class="form-group">
+            <label for="oldPassword" class="col-form-label">Old Password:</label>
+            <input type="password" class="form-control" name="oldPassword" id="oldPassword"
+                   aria-describedby="oldPasswordHelp">
+            <small id="oldPasswordHelp" class="form-text text-muted">This is your current password.</small>
+          </div>
+          <div class="form-group">
+            <label for="newPassword" class="col-form-label">New Password:</label>
+            <input type="password" class="form-control" name="password" id="newPassword"
+                   aria-describedby="newPasswordHelp">
+            <small id="newPasswordHelp" class="form-text text-muted">This is your new password.</small>
+          </div>
+          <div class="form-group">
+            <label for="passwordConfirmation" class="col-form-label">Password Confirmation:</label>
+            <input type="password" class="form-control" name="passwordConfirmation" id="passwordConfirmation"
+                   aria-describedby="passwordConfirmationHelp">
+            <small id="passwordConfirmationHelp" class="form-text text-muted">Retype your new password.</small>
+          </div>
+        </form>
+        <div class="alert alert-warning" role="alert" style="display:none">
+          Failed! Please check your passwords!
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" id="changePasswordButton" class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"></script>
+<script src="https://momentjs.com/downloads/moment.min.js"></script>
+<script src="index.js"></script>
+</body>
+</html>

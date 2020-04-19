@@ -19,7 +19,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter
   {
     http
         .authorizeRequests()
-        .antMatchers("/**").permitAll()
+        .antMatchers("/**")
+        .permitAll()
         .anyRequest().authenticated();
 // TODO: enable basic authentication and set appropriate url permissions.
     http.csrf().disable();

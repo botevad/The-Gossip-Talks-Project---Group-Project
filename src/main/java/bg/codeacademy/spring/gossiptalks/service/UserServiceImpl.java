@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,28 +26,20 @@ public class UserServiceImpl implements UserService
   public Optional<List<User>> getAllUsers(String name)
   {
     if (userRepository != null) {
-      return userRepository.findAllByUsernameContaining(name);
+      return userRepository.findAllByNameContaining(name);
     }
     return Optional.empty();
   }
 
   @Override
-  public Boolean changePassword(Principal principal, String oldPassword, String newPassword)
+  public Boolean changePassword(User user, String oldPassword, String password)
   {
-    Optional<User> currentUser = userRepository.findByName(principal.getName());
-
-    if (passwordEncoder.matches(oldPassword, currentUser.get().getPassword())) {
-      currentUser.get().setPassword(passwordEncoder.encode(newPassword));
-      userRepository.save(currentUser.get());
+    if (passwordEncoder.matches(oldPassword, user.getPassword())) {
+      user.setPassword(passwordEncoder.encode(password));
+      userRepository.save(user);
       return true;
     }
     return false;
-  }
-
-  @Override
-  public void saveUser(User user)
-  {
-    userRepository.save(user);
   }
 
   @Override
@@ -72,8 +63,18 @@ public class UserServiceImpl implements UserService
   }
 
   @Override
-  public List<User> getFollowList(String name)
+  public Optional<List<User>> getFollowList(String name)
   {
-    return userRepository.findByName(name).get().getFriendList();
+    if (!getFollowList(name).get().isEmpty()) {
+      return Optional.of(userRepository.findByName(name).get().getFriendList());
+    }
+    else {
+      return Optional.empty();
+    }
+  }
+
+  public void saveUser(User user)
+  {
+    userRepository.save(user);
   }
 }

@@ -13,16 +13,8 @@ import java.util.List;
 @NoArgsConstructor
 public class UserDto
 {
-  @NotNull
-
-  private String        email;
-  private String        username;
-  private String        name;
-  private Boolean       following;
-  private List<Gossips> gossips;
-
-  public Integer gossipsNumber()
-  {
-    return this.gossips.size();
-  }
+  private String  email;
+  private String  username;
+  private String  name;
+  private Boolean following = true;
 }

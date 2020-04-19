@@ -11,14 +11,12 @@ public interface UserService
 
   Optional<List<User>> getAllUsers(String name);
 
-  Boolean changePassword(Principal principal, String oldPassword, String newPassword);
-
-  void saveUser(User user);
+  Boolean changePassword(User user, String oldPassword, String password);
 
   Optional<User> getUserByName(String name);
 
   Optional<User> getUserByUsername(String username);
 
-  List<User> getFollowList(String name);
+  Optional<List<User>> getFollowList(String name);
 }
 

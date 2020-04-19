@@ -16,12 +16,12 @@ public class Gossip
 {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
-  private Integer id;
+  private Integer       id;
   @Column(updatable = false)
-  private String gossip;
+  private String        gossip;
   @ManyToOne(targetEntity = User.class)
   @JoinColumn(name = "username", referencedColumnName = "username")
-  private User user;
+  private User          user;
   @Column(updatable = false)
   private LocalDateTime date = LocalDateTime.now();
 }

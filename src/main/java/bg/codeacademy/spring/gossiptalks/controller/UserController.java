@@ -34,7 +34,7 @@ public class UserController
   @ResponseBody
   public ResponseEntity<List<UserDto>> showAllUsers(String name, Boolean following, Principal principal)
   {
-    Optional <User> currentUser = userService.getUserByName(principal.getName());
+    Optional<User> currentUser = userService.getUserByName(principal.getName());
     Optional<List<User>> allUsersWithName = userService.getAllUsers(name);
     List<User> showUsers;
 

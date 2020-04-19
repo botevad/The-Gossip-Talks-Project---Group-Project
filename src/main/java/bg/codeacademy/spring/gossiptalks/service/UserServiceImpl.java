@@ -44,6 +44,7 @@ public class UserServiceImpl implements UserService
     }
     return false;
   }
+
   @Override
   public void saveUser(User user)
   {
@@ -59,6 +60,7 @@ public class UserServiceImpl implements UserService
     }
     return Optional.empty();
   }
+
   @Override
   public Optional<User> getUserByUsername(String username)
   {
@@ -68,9 +70,10 @@ public class UserServiceImpl implements UserService
     }
     return Optional.empty();
   }
+
   @Override
   public List<User> getFollowList(String name)
   {
- return userRepository.findByName(name).get().getFriendList();
+    return userRepository.findByName(name).get().getFriendList();
   }
 }

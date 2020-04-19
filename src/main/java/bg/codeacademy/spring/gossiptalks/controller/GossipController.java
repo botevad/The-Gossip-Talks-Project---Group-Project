@@ -24,7 +24,8 @@ public class GossipController
   }
 
   @GetMapping("/users/{username}/gossips")
-  public ResponseEntity<List<Gossip>> showUserGossips(User user){
+  public ResponseEntity<List<Gossip>> showUserGossips(User user)
+  {
     return null;
   }
 

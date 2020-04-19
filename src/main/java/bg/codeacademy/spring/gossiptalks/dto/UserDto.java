@@ -15,13 +15,14 @@ public class UserDto
 {
   @NotNull
 
-  private String email;
-  private String username;
-  private String name;
-  private Boolean following;
+  private String       email;
+  private String       username;
+  private String       name;
+  private Boolean      following;
   private List<Gossip> gossips;
 
-  public Integer gossipsNumber(){
+  public Integer gossipsNumber()
+  {
     return this.gossips.size();
   }
 }

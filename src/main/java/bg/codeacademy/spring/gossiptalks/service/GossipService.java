@@ -10,7 +10,5 @@ public interface GossipService
 {
   Optional<List<Gossips>> findAllGossipsByUser(User user);
 
-  List<Gossips>getAllGossipsOfFriends(User currentUser);
-
   void addGossip(Gossips gossip);
 }

@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface GossipService
 {
-  Optional<List<Gossips>> findAllGossipsByUser(User user);
+  List<Gossips> findAllGossipsByUser(User user);
 
   void addGossip(Gossips gossip);
 }

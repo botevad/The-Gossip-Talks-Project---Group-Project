@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -19,4 +20,5 @@ public class GossipDto
   private LocalDateTime date;
   @NotNull()
   private String        username;
+  List<GossipDto> gossipDtoList;
 }

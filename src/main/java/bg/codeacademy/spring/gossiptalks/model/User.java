@@ -29,7 +29,6 @@ public class User
   private String     name;
   @ManyToMany
   private List<User> friendList;
-
 }
 
 

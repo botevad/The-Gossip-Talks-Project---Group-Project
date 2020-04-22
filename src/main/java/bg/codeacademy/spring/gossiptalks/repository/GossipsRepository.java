@@ -11,5 +11,5 @@ import java.util.Optional;
 @Repository
 public interface  GossipsRepository extends JpaRepository<Gossips, Integer>
 {
-  Optional<List<Gossips>> findAllGossipsByUser(User user);
+  List<Gossips> findAllGossipsByUser(User user);
 }

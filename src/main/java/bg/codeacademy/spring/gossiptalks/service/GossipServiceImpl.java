@@ -23,7 +23,7 @@ public class GossipServiceImpl implements GossipService
 
 
   @Override
-  public Optional<List<Gossips>> findAllGossipsByUser(User user)
+  public List<Gossips> findAllGossipsByUser(User user)
   {
     return gossipsRepository.findAllGossipsByUser(user);
   }

@@ -6,7 +6,9 @@ import bg.codeacademy.spring.gossiptalks.repository.GossipsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class GossipServiceImpl implements GossipService
@@ -22,6 +24,27 @@ public class GossipServiceImpl implements GossipService
   @Override
   public List<Gossips> findAllGossipsByUser(User user)
   {
-    return gossipsRepository.findAllByUser(user);
+    return gossipsRepository.findAllGossipsByUser(user).get();
   }
+
+  @Override
+  public List<Gossips> getAllGossipsOfFriends(User currentUser)
+  {
+    List<Gossips> allGossips = gossipsRepository.findAll();
+    List<Gossips> gossipsList = new ArrayList<>();
+    for (Gossips g : allGossips
+    ) {
+      if (currentUser.getFriendList().contains(g.getUser())) {
+        gossipsList.add(g);
+      }
+    }
+    return gossipsList;
+  }
+
+  @Override
+  public void addGossip(Gossips gossip)
+  {
+    gossipsRepository.save(gossip);
+  }
+
 }

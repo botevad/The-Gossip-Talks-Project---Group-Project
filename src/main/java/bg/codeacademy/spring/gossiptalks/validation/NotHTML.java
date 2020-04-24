@@ -11,6 +11,9 @@ import java.lang.annotation.*;
 public @interface NotHTML
 {
   String message() default "The text contains HTML";
-  Class<?>[]groups() default{};
+
+  Class<?>[] groups() default {};
+
   Class<? extends Payload>[] payload() default {};
+
 }

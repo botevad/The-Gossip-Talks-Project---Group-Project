@@ -31,28 +31,27 @@ public class UserController
     this.gossipService = gossipService;
   }
 
-  @GetMapping()
+  @GetMapping
   @ResponseBody
   public ResponseEntity<List<UserDto>> showAllUsers(@RequestParam(value = "name", required = true) String name,
                                                     @RequestParam(value = "f") boolean f,
                                                     Principal principal)
   {
-    Optional<User> currentUser = userService.getUserByUsername(principal.getName());
-    Optional<List<User>> allUsersWithName = userService.getAllUsersByName(name);
+    User currentUser = userService.getUserByUsername(principal.getName()).get();
+    List<User> allUsersWithName = userService.getAllUsersByName(name);
     List<User> showUsers;
-    if (allUsersWithName.isPresent()) {
+    if (!allUsersWithName.isEmpty()) {
       if (f == true) {
         allUsersWithName
-            .get()
             .stream()
-            .filter(user -> currentUser.get().getFriendList().contains(user))
+            .filter(user -> currentUser.getFriendList().contains(user))
             .collect(Collectors.toList());
       }
       else {
-        showUsers = allUsersWithName.get();
+        showUsers = allUsersWithName;
       }
       List<UserDto> showUsersDto = new ArrayList<>();
-      for (User user : allUsersWithName.get()) {
+      for (User user : allUsersWithName) {
         UserDto userDto = new UserDto();
         userDto.setUsername(user.getUsername());
         userDto.setName(user.getName());

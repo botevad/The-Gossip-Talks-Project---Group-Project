@@ -3,7 +3,7 @@ package bg.codeacademy.spring.gossiptalks.validation;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-public class NotHtmlValidation implements ConstraintValidator<NotHTML, String>
+public class NotHTMLValidation implements ConstraintValidator<NotHTML, String>
 {
   @Override
   public void initialize(NotHTML constraintAnnotation)

@@ -4,12 +4,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -33,12 +35,26 @@ public class User implements UserDetails
   @ManyToMany
   private List<User> friendList;
 
-  private Role role;
+  @Enumerated(EnumType.STRING)
+  @ManyToMany(fetch = FetchType.EAGER)
+  private Set<Role> roles;
 
   @Override
-  public Collection<? extends GrantedAuthority> getAuthorities()
+  public Set<GrantedAuthority> getAuthorities()
   {
-    return null;
+    Set<GrantedAuthority> authorities = new HashSet<>();
+    for (Role role : roles) {
+      authorities.add(new SimpleGrantedAuthority(role.toString()));
+    }
+    return authorities;
+  }
+
+  public void grantAuthority(Role authority)
+  {
+    if (roles == null) {
+      roles = new HashSet<Role>();
+    }
+    roles.add(authority);
   }
 
   @Override

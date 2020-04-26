@@ -26,9 +26,9 @@ public class UserServiceImpl implements UserService, UserDetailsService
   }
 
   @Override
-  public Optional<List<User>> getAllUsersByName(String name)
+  public List<User> getAllUsersByName(String name)
   {
-    return Optional.ofNullable(userRepository.findAllByNameContaining(name).orElse(null));
+    return userRepository.findAllByNameContaining(name).orElse(null);
   }
 
   @Override
@@ -67,7 +67,7 @@ public class UserServiceImpl implements UserService, UserDetailsService
     User user = userRepository.findByUsername(username).get();
     return org.springframework.security.core.userdetails.User.withUsername(username)
         .password(user.getPassword())
-        .roles(user.getRole().toString())
+        .roles(user.getRoles().toString())
         .build();
   }
 }

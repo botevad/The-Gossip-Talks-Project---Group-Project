@@ -8,11 +8,11 @@ import java.util.Optional;
 public interface UserService
 {
 
-  Optional<List<User>> getAllUsersByName(String name);
+ List<User> getAllUsersByName(String name);
 
   Boolean changePassword(User user, String oldPassword, String password);
 
-//  Optional<User> getUserByName(String name);
+ Optional<User> getUserByName(String name);
 
   Optional<User> getUserByUsername(String username);
 

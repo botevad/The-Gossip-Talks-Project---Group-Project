@@ -3,9 +3,6 @@ package bg.codeacademy.spring.gossiptalks.service;
 import bg.codeacademy.spring.gossiptalks.model.User;
 import bg.codeacademy.spring.gossiptalks.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UserServiceImpl implements UserService, UserDetailsService
+public class UserServiceImpl implements UserService
 {
   private final UserRepository        userRepository;
   private final BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -62,12 +59,9 @@ public class UserServiceImpl implements UserService, UserDetailsService
   }
 
   @Override
-  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException
+  public List<User> getAllUsers()
   {
-    User user = userRepository.findByUsername(username).get();
-    return org.springframework.security.core.userdetails.User.withUsername(username)
-        .password(user.getPassword())
-        .roles(user.getRoles().toString())
-        .build();
+
+    return userRepository.findAll();
   }
 }

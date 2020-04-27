@@ -10,14 +10,14 @@ public interface UserService
 
  List<User> getAllUsersByName(String name);
 
-  Boolean changePassword(User user, String oldPassword, String password);
+ Boolean changePassword(User user, String oldPassword, String password);
 
- Optional<User> getUserByName(String name);
+ Optional<User> getUserByUsername(String username);
 
-  Optional<User> getUserByUsername(String username);
+ List<User> getFollowList(String name);
 
-  List<User> getFollowList(String name);
+ void saveUser(User user);
 
-  void saveUser(User user);
+ List<User> getAllUsers();
 }
 

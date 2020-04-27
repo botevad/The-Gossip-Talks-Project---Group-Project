@@ -8,6 +8,7 @@ import bg.codeacademy.spring.gossiptalks.service.GossipServiceImpl;
 import bg.codeacademy.spring.gossiptalks.service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -21,20 +22,22 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/v1/users")
 public class UserController
 {
-  private final UserServiceImpl   userService;
-  private final GossipServiceImpl gossipService;
+  private final UserServiceImpl       userService;
+  private final GossipServiceImpl     gossipService;
+  private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
   @Autowired
-  public UserController(UserServiceImpl userService, GossipServiceImpl gossipService)
+  public UserController(UserServiceImpl userService, GossipServiceImpl gossipService, BCryptPasswordEncoder bCryptPasswordEncoder)
   {
     this.userService = userService;
     this.gossipService = gossipService;
+    this.bCryptPasswordEncoder = bCryptPasswordEncoder;
   }
 
   @GetMapping
   @ResponseBody
-  public ResponseEntity<List<UserDto>> showAllUsers(@RequestParam(value = "name", required = true) String name,
-                                                    @RequestParam(value = "f") boolean f,
+  public ResponseEntity<List<UserDto>> showAllUsers(@RequestParam(value = "name", required = false) String name,
+                                                    @RequestParam(value = "f") Boolean f,
                                                     Principal principal)
   {
     User currentUser = userService.getUserByUsername(principal.getName()).get();
@@ -81,7 +84,7 @@ public class UserController
     User user = new User();
     user.setEmail(email);
     user.setUsername(username);
-    user.setPassword(password);
+    user.setPassword(bCryptPasswordEncoder.encode(password));
     user.setName(name);
     userService.saveUser(user);
     if (following == true) {

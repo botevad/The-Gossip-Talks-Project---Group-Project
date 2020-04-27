@@ -1,6 +1,6 @@
 package bg.codeacademy.spring.gossiptalks.enums;
 
-public enum RoleEnum
+public enum Role
 {
-  USER, ADMIN;
+  ADMIN, USER
 }

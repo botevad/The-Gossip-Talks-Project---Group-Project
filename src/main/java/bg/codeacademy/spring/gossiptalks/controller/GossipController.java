@@ -38,8 +38,7 @@ public class GossipController
     return ResponseEntity.ok(gossip);
   }
 
-  @GetMapping(produces = {"application/json"},
-      consumes = {"multipart/form-data"}) //TODO pageNo and pageSize
+  @GetMapping() //TODO pageNo and pageSize
   public ResponseEntity<List<GossipDto>> getGossipsOfUser(
 
       @RequestParam(required = false, defaultValue = "0") Integer pageNo,

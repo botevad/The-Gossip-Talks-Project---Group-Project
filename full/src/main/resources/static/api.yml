@@ -1,0 +1,373 @@
+openapi: 3.0.1
+info:
+  version: '1.0.0'
+  title: Gossip Talks | Клюкарник
+  description: |
+    ## Описание
+    Целта на тази задача е да създадем един клюкарник, където всеки може да праща клюкини и да следи клюкините на своите приятели.
+    ## Use Cases
+    ![use cases](http://www.plantuml.com/plantuml/png/PSz12i8m48NXlQUOfIvw1MbnuKPGAXuWJOOs49EIDy7hEocsK5o-_oE1QI4cItc7mmkSgIbpSwPZpwE7wEwiJINAQQUNoSIHwM60JyfkHPMRlgAwiCPQdsM0pNvWkikaiShcouUPZJ1T4-3ddVHi77KX_0p_kEnDMuvEZ_a2)
+  contact:
+    name: Team Apple | Rasberry
+    email: contact@example.com
+    url: 'http://ext4.codix.eu/jprogrammers/season-1/GOSSIP-TALKS'
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+externalDocs:
+  description: Find out how to use to build it and use it.
+  url: 'http://ext4.codix.eu/jprogrammers/season-1/GOSSIP-TALKS'
+servers:
+  - url: /api/v1
+  - url: http://localhost:8000/api/v1
+security:
+  - basicAuth: []
+
+paths:
+  '/users':
+    get:
+      description: Retrieve information about the users, sorted by most active one - e.g. the with more posts.
+      operationId: getUsers
+      tags: [ users ]
+      parameters:
+        - in: query
+          required: false
+          name: name
+          description: This is case-insensitive, substring match of the user that we are looking for.
+          schema:
+            type: string
+        - in: query
+          required: false
+          name: f
+          description: If this parameter is 'true', the method must return list of users, that the current one follows.
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: The list of documents that can be loaded directly from swagger-ui, via "urls" configuration parameter.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserResponse'
+              example:
+                - email: 'john@mail.com'
+                  username: 'john.dow'
+                  following: true
+                  name: 'John Dow'
+                - email: 'jessie.c@mail.com'
+                  username: 'jessie.c'
+                  following: false
+                  name: 'Jessie Carter'
+
+    post:
+      description: Registers a new user, that becomes automatically active.
+      operationId: createUser
+      tags: [ users ]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data: # Media type
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '400':
+          description: Failed
+          content: {}
+        '200':
+          description: Successful operation
+          content: {}
+
+  '/users/me':
+    get:
+      description: Get information about the current user.
+      operationId: getCurrentUser
+      tags: [ users ]
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+    post:
+      description: Change user password.
+      operationId: changeCurrentUserPassword
+      tags: [ users ]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        '400':
+          description: Failed
+          content: {}
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+  '/users/{username}/follow':
+    post:
+      description: This method allows the user to (un)subscribe for gossips from the provided username.
+      operationId: followUser
+      tags: [ users ]
+      parameters:
+        - $ref: '#/components/parameters/UserName'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FollowRequest'
+      responses:
+        '400':
+          description: Failed - already subscriber or not subscribed.
+          content: {}
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+
+  '/users/{username}/gossips':
+    get:
+      description: List the posts of the selected person, sorted by time (newest posts first).
+      operationId: getUserGossips
+      tags: [ gossips ]
+      parameters:
+        - $ref: '#/components/parameters/PageNo'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/UserName'
+      responses:
+        '200':
+          description: The posts.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GossipList'
+
+  '/gossips':
+    get:
+      description: List the posts of my friends, sorted by time (newest posts first).
+      operationId: getGossips
+      tags: [ gossips ]
+      parameters:
+        - $ref: '#/components/parameters/PageNo'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: The posts I'm subscribed to.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GossipList'
+
+    post:
+      description: Start a new gossip talk.
+      operationId: postGossip
+      tags: [ gossips ]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateGossipRequest'
+      responses:
+        '400':
+          description: Failed
+          content: {}
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Gossip'
+
+components:
+  securitySchemes:
+    basicAuth:     # <-- arbitrary name for the security scheme
+      type: http
+      scheme: basic
+  parameters:
+    PageNo:
+      in: query
+      name: pageNo
+      description: A zero-based index of the selected page.
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+        example: 2
+    PageSize:
+      in: query
+      name: pageSize
+      description: The number of elements included in the page.
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 50
+        default: 20
+        example: 35
+    UserName:
+      in: path
+      name: username
+      description: The target user.
+      required: true
+      schema:
+        type: string
+        pattern: '^[a-z0-8\\.\\-]+$'
+        example: 'john.dow'
+
+  schemas:
+    UserResponse:
+      description: User of the system
+      type: object
+      required: [ email, username ]
+      properties:
+        email:
+          type: string
+          format: email
+          description: The user e-mail.
+        username:
+          type: string
+          pattern: '^[a-z0-8\\.\\-]+$'
+          description: A short nick name of the user.
+        name:
+          type: string
+          description: Full name.
+        following:
+          type: boolean
+          description: True if the current user is following the listed one.
+      example:
+        email: 'john@mail.com'
+        username: 'john.dow'
+        name: 'John Dow'
+        following: true
+
+    CreateUserRequest:
+      description: The payload send by client, when creating a new user. The optional parameter `following` should be ignored.
+      allOf:
+        - $ref: '#/components/schemas/UserResponse'
+        - $ref: '#/components/schemas/CommonPasswordRequest'
+      example:
+        email: 'john@mail.com'
+        username: 'john.dow'
+        name: 'John Dow'
+        following: true
+        password: secret-me
+        passwordConfirmation: secret-me
+
+    CommonPasswordRequest:
+      type: object
+      description: Common password object.
+      required: [ password, passwordConfirmation ]
+      properties:
+        password:
+          type: string
+          format: password
+        passwordConfirmation:
+          type: string
+          format: password
+
+    ChangePasswordRequest:
+      description: The payload send by user, to change his password.
+      allOf:
+        - $ref: '#/components/schemas/CommonPasswordRequest'
+        - type: object
+          required: [ oldPassword ]
+          properties:
+            oldPassword:
+              type: string
+              format: password
+      example:
+        oldPassword: password
+        password: secret1
+        passwordConfirmation: secret1
+
+    Gossip:
+      allOf:
+        - $ref: '#/components/schemas/CreateGossipRequest'
+        - type: object
+          description: A gossip talk.
+          required: [ id, username, datetime ]
+          properties:
+            id:
+              type: string
+              pattern: '[A-Z0-9]+'
+              description: A base32 representation of the gossip ID.
+            username:
+              type: string
+              pattern: '^[a-z0-8\\.\\-]+$'
+              description: A short nick name of the user.
+            datetime:
+              type: string
+              format: date-time
+              description: When this gossip was created.
+          example:
+            id: ASH32
+            username: 'john.dow'
+            datetime: '994-11-05T08:15:30-05:00'
+
+    GossipList:
+      type: object
+      description: Paginated list of Gossips.
+      required: [ numberOfElements, totalElements, content ]
+      properties:
+        numberOfElements:
+          type: integer
+          description: The number of elements returned in the content.
+        totalElements:
+          type: integer
+          description: The number of elements totally available.
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/Gossip'
+      example:
+        numberOfElements: 2
+        totalElements: 10
+        content:
+          - id: ASH32
+            username: 'john.dow'
+            datetime: '1994-11-05T08:15:30-05:00'
+            text: 'Hey! I am going to be java programmer!'
+          - id: JOE31
+            username: 'jessie.carter'
+            datetime: '2004-11-05T08:15:30-05:00'
+            text: 'Hey I am better!'
+
+
+    CreateGossipRequest:
+      type: object
+      description: A request to create a new gossip.
+      required: [ text ]
+      properties:
+        text:
+          type: string
+          maxLength: 255
+          description: A common-mark formatted text. For safety reasons HTML entities must be forbidden.
+      example:
+        text: Heloo my friends! This is my first gossip!
+
+    FollowRequest:
+      type: object
+      description: Follow or unfollow user.
+      required: [ follow ]
+      properties:
+        follow:
+          type: boolean
+          description: True to follow the user, and False to unfollow.
+      example:
+        follow: true

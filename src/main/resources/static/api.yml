@@ -65,6 +65,7 @@ paths:
       description: Registers a new user, that becomes automatically active.
       operationId: createUser
       tags: [ users ]
+      security: []
       requestBody:
         required: true
         content:

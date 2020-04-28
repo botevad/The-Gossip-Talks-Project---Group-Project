@@ -17,4 +17,5 @@ public class UserDto
   private String  username;
   private String  name;
   private Boolean following = true;
+
 }

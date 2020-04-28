@@ -1,5 +1,6 @@
 package bg.codeacademy.spring.gossiptalks.model;
 
+import bg.codeacademy.spring.gossiptalks.enums.Role;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,7 +13,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "users")
+@Table
 public class User
 {
   @Id
@@ -30,6 +31,7 @@ public class User
   @ManyToMany
   private List<User> friendList;
 
+  private Role role = Role.USER;
 }
 
 

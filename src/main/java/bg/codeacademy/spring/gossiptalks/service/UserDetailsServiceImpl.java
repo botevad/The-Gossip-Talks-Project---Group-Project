@@ -2,6 +2,7 @@ package bg.codeacademy.spring.gossiptalks.service;
 
 import bg.codeacademy.spring.gossiptalks.enums.Role;
 import bg.codeacademy.spring.gossiptalks.model.User;
+import bg.codeacademy.spring.gossiptalks.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -16,21 +17,20 @@ import java.util.Optional;
 public class UserDetailsServiceImpl implements UserDetailsService
 {
 
-  private final UserService userService;
-
+  private final UserRepository        userRepository;
   private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
   @Autowired
-  public UserDetailsServiceImpl(UserService userService, BCryptPasswordEncoder bCryptPasswordEncoder)
+  public UserDetailsServiceImpl(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder)
   {
-    this.userService = userService;
+    this.userRepository = userRepository;
     this.bCryptPasswordEncoder = bCryptPasswordEncoder;
   }
 
   @Override
   public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException
   {
-    List<User> users = userService.getAllUsers();
+    List<User> users = userRepository.findAll();
     if (users.isEmpty()) {
       User user = new User();
       user.setUsername("admin");
@@ -38,10 +38,10 @@ public class UserDetailsServiceImpl implements UserDetailsService
       user.setEmail("admin@email.com");
       user.setPassword(bCryptPasswordEncoder.encode("1234"));
       user.setRole(Role.ADMIN);
-      userService.saveUser(user);
+      userRepository.save(user);
     }
 
-    Optional<User> optionalUser = userService.getUserByUsername(userName);
+    Optional<User> optionalUser = userRepository.findByUsername(userName);
     if (!optionalUser.isPresent()) {
       throw new UsernameNotFoundException("User not found.");
     }

@@ -32,6 +32,11 @@ public class User
   private List<User> friendList;
 
   private Role role = Role.USER;
+
+  public Integer countFriends()
+  {
+    return this.getFriendList().size();
+  }
 }
 
 

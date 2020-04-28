@@ -1,12 +1,8 @@
 package bg.codeacademy.spring.gossiptalks.dto;
 
-import bg.codeacademy.spring.gossiptalks.model.Gossips;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import javax.validation.constraints.NotNull;
-import java.util.List;
 
 @Getter
 @Setter
@@ -15,7 +11,7 @@ public class UserDto
 {
   private String  email;
   private String  username;
+  private Boolean following;
   private String  name;
-  private Boolean following = true;
 
 }

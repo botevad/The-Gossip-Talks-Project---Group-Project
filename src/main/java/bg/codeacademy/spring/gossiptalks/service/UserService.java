@@ -8,16 +8,18 @@ import java.util.Optional;
 public interface UserService
 {
 
- List<User> getAllUsersByName(String name);
+ Optional<List<User>> getAllUsers(String name);
 
  Boolean changePassword(User user, String oldPassword, String password);
 
  Optional<User> getUserByUsername(String username);
 
- List<User> getFollowList(String name);
+ List<User> getFriendList(String name);
+
+ void followUser(String username, User userToAdd);
 
  void saveUser(User user);
 
- List<User> getAllUsers();
+ void saveUserFriendList(String username, List<User> friendList);
 }
 

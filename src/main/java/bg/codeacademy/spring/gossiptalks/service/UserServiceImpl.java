@@ -6,8 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService
@@ -23,9 +26,16 @@ public class UserServiceImpl implements UserService
   }
 
   @Override
-  public List<User> getAllUsersByName(String name)
+  public Optional<List<User>> getAllUsers(String name)
   {
-    return userRepository.findAllByNameContaining(name).orElse(null);
+    Optional<List<User>> allUsers = userRepository.findByNameContaining(name);
+    if (!allUsers.isPresent()) {
+      return Optional.of(userRepository.findAll());
+    }
+    return Optional.of(allUsers.get()
+        .stream()
+        .sorted(Comparator.comparing(User::countFriends))
+        .collect(Collectors.toList()));
   }
 
   @Override
@@ -47,9 +57,22 @@ public class UserServiceImpl implements UserService
   }
 
   @Override
-  public List<User> getFollowList(String name)
+  public List<User> getFriendList(String username)
   {
-    return Optional.ofNullable(userRepository.findByName(name).get().getFriendList()).orElse(null);
+    User user = getUserByUsername(username).get();
+    if (user.getFriendList() == null) {
+      user.setFriendList(new ArrayList<>());
+    }
+    return user.getFriendList();
+  }
+
+  @Override
+  public void followUser(String username, User userToAdd)
+  {
+    List<User> friendList = getFriendList(username);
+    friendList.add(userToAdd);
+    getUserByUsername(username).get().setFriendList(friendList);
+
   }
 
   @Override
@@ -59,9 +82,8 @@ public class UserServiceImpl implements UserService
   }
 
   @Override
-  public List<User> getAllUsers()
+  public void saveUserFriendList(String username, List<User> friendList)
   {
-
-    return userRepository.findAll();
+    userRepository.findByUsername(username).get().setFriendList(friendList);
   }
 }

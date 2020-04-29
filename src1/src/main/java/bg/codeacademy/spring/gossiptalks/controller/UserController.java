@@ -37,8 +37,8 @@ public class UserController
   @GetMapping
   @ResponseBody
   public ResponseEntity<List<UserDto>> showAllUsers(@RequestParam(value = "name", required = false, defaultValue = "*") String name,
-                                                    @RequestParam(value = "f", required = false, defaultValue = "false") Boolean f,
-                                                    Principal principal)
+                                                 @RequestParam(value = "f", required = false, defaultValue = "false") Boolean f,
+                                                 Principal principal)
   {
     List<UserDto> showUsersDto = new ArrayList<>();
     List<User> allUsers = userService.getAllUsers(name).get();

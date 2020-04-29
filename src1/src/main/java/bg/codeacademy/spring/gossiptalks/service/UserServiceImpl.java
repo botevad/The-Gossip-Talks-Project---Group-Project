@@ -59,9 +59,20 @@ public class UserServiceImpl implements UserService
   public List<User> getFriendList(String username)
   {
     User user = getUserByUsername(username).get();
+//    if (user.getFriendList() == null) {
+//      user.setFriendList(new ArrayList<>());
+//    }
     return user.getFriendList();
   }
 
+//  @Override
+//  public void followUser(String username, User userToAdd)
+//  {
+//    List<User> friendList = getFriendList(username);
+//    friendList.add(userToAdd);
+//    getUserByUsername(username).get().setFriendList(friendList);
+//
+//  }
 
   @Override
   public void saveUser(User user)

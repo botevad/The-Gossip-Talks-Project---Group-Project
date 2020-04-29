@@ -42,7 +42,6 @@ paths:
           description: If this parameter is 'true', the method must return list of users, that the current one follows.
           schema:
             type: boolean
-            default: false
       responses:
         '200':
           description: The list of documents that can be loaded directly from swagger-ui, via "urls" configuration parameter.
@@ -66,6 +65,7 @@ paths:
       description: Registers a new user, that becomes automatically active.
       operationId: createUser
       tags: [ users ]
+      security: []
       requestBody:
         required: true
         content:

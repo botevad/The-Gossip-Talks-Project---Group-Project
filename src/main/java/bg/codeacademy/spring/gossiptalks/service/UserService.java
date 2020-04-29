@@ -16,7 +16,7 @@ public interface UserService
 
  List<User> getFriendList(String name);
 
- void followUser(String username, User userToAdd);
+// void followUser(String username, User userToAdd);
 
  void saveUser(User user);
 

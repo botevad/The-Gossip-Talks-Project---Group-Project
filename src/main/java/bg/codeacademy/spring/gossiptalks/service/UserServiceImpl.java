@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -60,20 +59,20 @@ public class UserServiceImpl implements UserService
   public List<User> getFriendList(String username)
   {
     User user = getUserByUsername(username).get();
-    if (user.getFriendList() == null) {
-      user.setFriendList(new ArrayList<>());
-    }
+//    if (user.getFriendList() == null) {
+//      user.setFriendList(new ArrayList<>());
+//    }
     return user.getFriendList();
   }
 
-  @Override
-  public void followUser(String username, User userToAdd)
-  {
-    List<User> friendList = getFriendList(username);
-    friendList.add(userToAdd);
-    getUserByUsername(username).get().setFriendList(friendList);
-
-  }
+//  @Override
+//  public void followUser(String username, User userToAdd)
+//  {
+//    List<User> friendList = getFriendList(username);
+//    friendList.add(userToAdd);
+//    getUserByUsername(username).get().setFriendList(friendList);
+//
+//  }
 
   @Override
   public void saveUser(User user)
@@ -84,6 +83,8 @@ public class UserServiceImpl implements UserService
   @Override
   public void saveUserFriendList(String username, List<User> friendList)
   {
-    userRepository.findByUsername(username).get().setFriendList(friendList);
+    User user = userRepository.findByUsername(username).get();
+    user.setFriendList(friendList);
+    userRepository.save(user);
   }
 }

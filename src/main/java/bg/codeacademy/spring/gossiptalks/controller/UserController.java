@@ -36,9 +36,9 @@ public class UserController
 
   @GetMapping
   @ResponseBody
-  public ResponseEntity<List<UserDto>> showAllUsers(@RequestParam(value = "name", required = false, defaultValue = "*") String name,
-                                                    @RequestParam(value = "f", required = false, defaultValue = "false") Boolean f,
-                                                    Principal principal)
+  public ResponseEntity<List<User>> showAllUsers(@RequestParam(value = "name", required = false, defaultValue = "*") String name,
+                                                 @RequestParam(value = "f", required = false, defaultValue = "false") Boolean f,
+                                                 Principal principal)
   {
     List<UserDto> showUsersDto = new ArrayList<>();
     List<User> allUsers = userService.getAllUsers(name).get();
@@ -57,7 +57,7 @@ public class UserController
       showUsersDto.add(userDto);
 
     }
-    return ResponseEntity.ok(showUsersDto);
+    return ResponseEntity.ok(friendList);
   }
 
 
@@ -104,13 +104,13 @@ public class UserController
   }
 
   @PostMapping(value = "/{username}/follow", consumes = "multipart/form-data")
-  ResponseEntity<User> followUser(@PathVariable("username") String username,
-                                  @RequestParam(value = "follow", required = true) Boolean follow,
-                                  Principal principal)
+  ResponseEntity<List<User>> followUser(@PathVariable("username") String username,
+                                        @RequestParam(value = "follow", required = true) Boolean follow,
+                                        Principal principal)
   {
     List<User> currentUserList = userService.getFriendList(principal.getName());
     User userToFollow = userService.getUserByUsername(username).get();
-    if (follow) {
+    if (follow == true) {
       if (!currentUserList.contains(userToFollow)) {
         currentUserList.add(userToFollow);
       }
@@ -118,7 +118,7 @@ public class UserController
         return ResponseEntity.badRequest().build();
       }
     }
-    if (!follow) {
+    else if (follow == false) {
       if (currentUserList.contains(userToFollow)) {
         currentUserList.remove(userToFollow);
       }
@@ -127,7 +127,7 @@ public class UserController
       }
     }
     userService.saveUserFriendList(principal.getName(), currentUserList);
-    return ResponseEntity.ok(userToFollow);
+    return ResponseEntity.ok(currentUserList);
   }
 
   //from Rado

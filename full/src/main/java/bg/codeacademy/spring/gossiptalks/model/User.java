@@ -1,6 +1,5 @@
 package bg.codeacademy.spring.gossiptalks.model;
 
-import bg.codeacademy.spring.gossiptalks.enums.Role;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,7 +12,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table
+@Table(name = "users")
 public class User
 {
   @Id
@@ -29,17 +28,8 @@ public class User
   @Column(nullable = false)
   private String     name;
   @ManyToMany
-  @JoinTable(name = "users_friends",
-      joinColumns = @JoinColumn(name = "friend_id"),
-      inverseJoinColumns = @JoinColumn(name = "user_id"))
   private List<User> friendList;
 
-  private Role role = Role.USER;
-
-  public Integer countFriends()
-  {
-    return this.getFriendList().size();
-  }
 }
 
 

@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Entity;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
@@ -17,6 +16,7 @@ public class GossipDto
   @NotNull(message = "The gossip cannot be NULL!")
   @NotHTML
   private String        gossip;
+  private String id;
   private LocalDateTime date;
   @NotNull()
   private String        username;

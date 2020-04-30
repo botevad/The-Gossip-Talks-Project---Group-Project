@@ -27,19 +27,6 @@ public class GossipServiceImpl implements GossipService
     return gossipsRepository.findAllGossipsByUser(user).get();
   }
 
-  @Override
-  public List<Gossips> getAllGossipsOfFriends(User currentUser)
-  {
-    List<Gossips> allGossips = gossipsRepository.findAll();
-    List<Gossips> gossipsList = new ArrayList<>();
-    for (Gossips g : allGossips
-    ) {
-      if (currentUser.getFriendList().contains(g.getUser())) {
-        gossipsList.add(g);
-      }
-    }
-    return gossipsList;
-  }
 
   @Override
   public void addGossip(Gossips gossip)

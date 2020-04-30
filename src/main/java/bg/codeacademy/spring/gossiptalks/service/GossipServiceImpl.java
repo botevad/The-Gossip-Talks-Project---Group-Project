@@ -24,7 +24,7 @@ public class GossipServiceImpl implements GossipService
   @Override
   public List<Gossips> findAllGossipsByUser(User user)
   {
-    return gossipsRepository.findAllGossipsByUser(user).get();
+    return gossipsRepository.findAllGossipsByUser(user);
   }
 
 

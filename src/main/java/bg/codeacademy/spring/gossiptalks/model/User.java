@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import java.io.Serializable;
 import java.util.List;
 
 @Entity
@@ -14,7 +15,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @Table
-public class User
+public class User implements Serializable
 {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -32,6 +33,8 @@ public class User
   private List<User> friendList;
 
   private Role role = Role.USER;
+
+  private static final long serialVersionUID = 1L;
 
   public Integer countFriends()
   {

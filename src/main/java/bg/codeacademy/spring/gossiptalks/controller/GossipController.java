@@ -69,8 +69,12 @@ public class GossipController
           }
         }
       }
+      gossipsToShow.sort(Comparator.comparing(GossipDto::getDate));
+      return ResponseEntity.ok(gossipsToShow);
     }
-    gossipsToShow.sort(Comparator.comparing(GossipDto::getDate));
-    return ResponseEntity.ok(gossipsToShow);
+    else
+    {
+      return ResponseEntity.ok(gossipsToShow);
+    }
   }
 }

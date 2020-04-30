@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -130,15 +131,12 @@ public class UserController
     return ResponseEntity.ok(userToFollow);
   }
 
-  //from Rado
+
   @GetMapping("/{username}/gossips")
-  public ResponseEntity<List<GossipDto>> getGossipsOfUser(@PathVariable("username") String username)
+  public ResponseEntity<List<GossipDto>> getGossipsOfUser(@PathVariable("username") @Valid String username)
   {
     Optional<User> userCheck = userService.getUserByUsername(username);
-    if (!userCheck.isPresent()) {
-      return ResponseEntity.notFound().build();
-    }
-    else {
+    if(userCheck.isPresent()) {
       User user = userCheck.get();
       List<Gossips> userGossips = gossipService.findAllGossipsByUser(user);
       List<GossipDto> gossipsToShow = new ArrayList<>();
@@ -154,10 +152,13 @@ public class UserController
           gDto.setGossip(g.getGossip());
           gossipsToShow.add(gDto);
         }
+        gossipsToShow.sort(Comparator.comparing(GossipDto::getDate));
+        return ResponseEntity.ok(gossipsToShow);
       }
-      gossipsToShow.sort(Comparator.comparing(GossipDto::getDate));
-      return ResponseEntity.ok(gossipsToShow);
+    }
+    else
+    {
+      return ResponseEntity.notFound().build();
     }
   }
-
 }

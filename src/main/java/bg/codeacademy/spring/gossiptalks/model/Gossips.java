@@ -21,8 +21,8 @@ public class Gossips
   @Column(updatable = false)
   @NotHTML
   private String        gossip;
-  @ManyToOne(targetEntity = User.class)
-  @JoinColumn(name = "username", referencedColumnName = "username")
+  @ManyToOne
+  @JoinColumn(name = "user_name", referencedColumnName = "username")
   private User          user;
   @Column(updatable = false)
   private LocalDateTime date = LocalDateTime.now();

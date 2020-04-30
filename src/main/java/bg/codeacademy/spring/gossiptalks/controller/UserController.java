@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.ArrayList;
@@ -104,31 +105,44 @@ public class UserController
     return ResponseEntity.ok().build();
   }
 
-  @PostMapping(value = "/{username}/follow", consumes = "multipart/form-data")
-  ResponseEntity<User> followUser(@PathVariable("username") String username,
-                                  @RequestParam(value = "follow", required = true) Boolean follow,
-                                  Principal principal)
+  @PostMapping(value = "/{username}/follow", produces = {"application/json"},consumes = "multipart/form-data")
+  ResponseEntity<UserDto> followUser(@PathVariable("username") String username,
+                                                @RequestParam(value = "follow") Boolean follow,
+                                                Principal principal)
   {
-    List<User> currentUserList = userService.getFriendList(principal.getName());
-    User userToFollow = userService.getUserByUsername(username).get();
-    if (follow) {
-      if (!currentUserList.contains(userToFollow)) {
-        currentUserList.add(userToFollow);
+    User currentUser = userService.getUserByUsername(principal.getName()).get();
+    List<User> currentUserList = currentUser.getFriendList();
+    Optional<User> userCheck = userService.getUserByUsername(username);
+    UserDto userDto = new UserDto();
+    if (userCheck.isPresent()) {
+      User userToFollow = userCheck.get();
+      if (follow) {
+        if (!currentUserList.contains(userToFollow)) {
+          currentUserList.add(userToFollow);
+          userDto.setFollowing(true);
+        }
+        else {
+          return ResponseEntity.badRequest().build();
+        }
       }
-      else {
-        return ResponseEntity.badRequest().build();
+      if (!follow) {
+        if (currentUserList.contains(userToFollow)) {
+          currentUserList.remove(userToFollow);
+          userDto.setFollowing(false);
+        }
+        else {
+          return ResponseEntity.badRequest().build();
+        }
       }
+      userDto.setEmail(userToFollow.getEmail());
+      userDto.setUsername(userToFollow.getUsername());
+      userDto.setName(userToFollow.getName());
+      return ResponseEntity.ok(userDto);
     }
-    if (!follow) {
-      if (currentUserList.contains(userToFollow)) {
-        currentUserList.remove(userToFollow);
-      }
-      else {
-        return ResponseEntity.badRequest().build();
-      }
+    else
+    {
+      return ResponseEntity.notFound().build();
     }
-    userService.saveUserFriendList(principal.getName(), currentUserList);
-    return ResponseEntity.ok(userToFollow);
   }
 
 
@@ -147,6 +161,7 @@ public class UserController
         for (Gossips g : userGossips
         ) {
           GossipDto gDto = new GossipDto();
+          gDto.setId(Integer.toString(g.getId(), 32));
           gDto.setUsername(g.getUser().getUsername());
           gDto.setDate(g.getDate());
           gDto.setGossip(g.getGossip());

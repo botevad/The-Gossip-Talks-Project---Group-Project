@@ -59,9 +59,6 @@ public class UserServiceImpl implements UserService
   public List<User> getFriendList(String username)
   {
     User user = getUserByUsername(username).get();
-    if (user.getFriendList() == null) {
-      user.setFriendList(new ArrayList<>());
-    }
     return user.getFriendList();
   }
 

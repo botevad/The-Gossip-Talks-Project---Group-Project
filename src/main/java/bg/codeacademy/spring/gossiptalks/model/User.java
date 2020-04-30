@@ -8,6 +8,7 @@ import lombok.Setter;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -30,7 +31,7 @@ public class User implements Serializable
   @Column(nullable = false)
   private String     name;
   @ManyToMany
-  private List<User> friendList;
+  private List<User> friendList = new ArrayList<>();
 
   private Role role = Role.USER;
 

@@ -3,15 +3,15 @@
 <head>
   <!-- Required meta tags -->
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
 
   <!-- Bootstrap CSS -->
-  <link rel="stylesheet" crossorigin="anonymous"
-        href="https://stackpath.bootstrapcdn.com/bootswatch/4.4.1/lumen/bootstrap.min.css">
-  <link rel="stylesheet" crossorigin="anonymous"
-        href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-  <link rel="stylesheet"
-        href="simple-sidebar.css">
+  <link crossorigin="anonymous" href="https://stackpath.bootstrapcdn.com/bootswatch/4.4.1/lumen/bootstrap.min.css"
+        rel="stylesheet">
+  <link crossorigin="anonymous" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+        rel="stylesheet">
+  <link href="simple-sidebar.css"
+        rel="stylesheet">
 
   <title>Gossip Talks</title>
 </head>
@@ -23,16 +23,16 @@
   <!-- Sidebar -->
   <div class="bg-light border-right" id="sidebar-wrapper">
     <div class="sidebar-heading">Friends</div>
-    <div id="usersFriends" class="list-group list-group-flush">
-      <a href="#" class="list-group-item list-group-item-action bg-light">Dashboard</a>
-      <a href="#" class="list-group-item list-group-item-action bg-light">Shortcuts</a>
-      <a href="#" class="list-group-item list-group-item-action bg-light">Overview</a>
-      <a href="#" class="list-group-item list-group-item-action bg-light">Events</a>
-      <a href="#" class="list-group-item list-group-item-action bg-light">Profile</a>
-      <a href="#" class="list-group-item list-group-item-action bg-light">Status</a>
+    <div class="list-group list-group-flush" id="usersFriends">
+      <a class="list-group-item list-group-item-action bg-light" href="#">Dashboard</a>
+      <a class="list-group-item list-group-item-action bg-light" href="#">Shortcuts</a>
+      <a class="list-group-item list-group-item-action bg-light" href="#">Overview</a>
+      <a class="list-group-item list-group-item-action bg-light" href="#">Events</a>
+      <a class="list-group-item list-group-item-action bg-light" href="#">Profile</a>
+      <a class="list-group-item list-group-item-action bg-light" href="#">Status</a>
     </div>
     <div class="sidebar-heading">Others</div>
-    <div id="usersOthers" class="list-group list-group-flush">
+    <div class="list-group list-group-flush" id="usersOthers">
     </div>
   </div>
   <!-- /#sidebar-wrapper -->
@@ -45,8 +45,9 @@
         <i class="fa fa-users"></i>
       </button>
 
-      <button class="navbar-toggler btn" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-              aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <button aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"
+              class="navbar-toggler btn"
+              data-target="#navbarSupportedContent" data-toggle="collapse" type="button">
         <span class="navbar-toggler-icon"></span>
       </button>
 
@@ -58,7 +59,7 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" data-toggle="modal" data-target="#changePasswordModal">
+            <a class="nav-link" data-target="#changePasswordModal" data-toggle="modal">
               <i class="fa fa-user"></i>
               <span id="currentUser">The User</span>
             </a>
@@ -72,17 +73,17 @@
       <form id="postGossip">
         <div class="form-row">
           <div class="form-group col-md-10">
-            <input type="text" class="form-control m-2" name="/text">
+            <input class="form-control m-2" name="/text" type="text">
           </div>
           <div class="form-group col-md-2">
-            <button type="submit" class="btn btn-primary m-2">Say</button>
+            <button class="btn btn-primary m-2" type="submit">Say</button>
           </div>
         </div>
       </form>
 
       <h1>Your Gossip List</h1>
-      <div id="posts" class="list-group">
-        <a href="#" class="list-group-item list-group-item-action active">
+      <div class="list-group" id="posts">
+        <a class="list-group-item list-group-item-action active" href="#">
           <div class="d-flex w-100 justify-content-between">
             <h5>ivan</h5>
             <small>3 days ago</small>
@@ -99,35 +100,37 @@
 </div>
 <!-- /#wrapper -->
 
-<div class="modal fade" id="changePasswordModal" tabindex="-1" role="dialog" aria-labelledby="changePasswordModalTitle"
-     aria-hidden="true">
+<div aria-hidden="true" aria-labelledby="changePasswordModalTitle" class="modal fade" id="changePasswordModal"
+     role="dialog"
+     tabindex="-1">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="changePasswordModalTitle">Change Password</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <button aria-label="Close" class="close" data-dismiss="modal" type="button">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body">
         <form id="passwordForm">
           <div class="form-group">
-            <label for="oldPassword" class="col-form-label">Old Password:</label>
-            <input type="password" class="form-control" name="oldPassword" id="oldPassword"
-                   aria-describedby="oldPasswordHelp">
-            <small id="oldPasswordHelp" class="form-text text-muted">This is your current password.</small>
+            <label class="col-form-label" for="oldPassword">Old Password:</label>
+            <input aria-describedby="oldPasswordHelp" class="form-control" id="oldPassword" name="oldPassword"
+                   type="password">
+            <small class="form-text text-muted" id="oldPasswordHelp">This is your current password.</small>
           </div>
           <div class="form-group">
-            <label for="newPassword" class="col-form-label">New Password:</label>
-            <input type="password" class="form-control" name="password" id="newPassword"
-                   aria-describedby="newPasswordHelp">
-            <small id="newPasswordHelp" class="form-text text-muted">This is your new password.</small>
+            <label class="col-form-label" for="newPassword">New Password:</label>
+            <input aria-describedby="newPasswordHelp" class="form-control" id="newPassword" name="password"
+                   type="password">
+            <small class="form-text text-muted" id="newPasswordHelp">This is your new password.</small>
           </div>
           <div class="form-group">
-            <label for="passwordConfirmation" class="col-form-label">Password Confirmation:</label>
-            <input type="password" class="form-control" name="passwordConfirmation" id="passwordConfirmation"
-                   aria-describedby="passwordConfirmationHelp">
-            <small id="passwordConfirmationHelp" class="form-text text-muted">Retype your new password.</small>
+            <label class="col-form-label" for="passwordConfirmation">Password Confirmation:</label>
+            <input aria-describedby="passwordConfirmationHelp" class="form-control" id="passwordConfirmation"
+                   name="passwordConfirmation"
+                   type="password">
+            <small class="form-text text-muted" id="passwordConfirmationHelp">Retype your new password.</small>
           </div>
         </form>
         <div class="alert alert-warning" role="alert" style="display:none">
@@ -135,8 +138,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" id="changePasswordButton" class="btn btn-primary">Save</button>
+        <button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
+        <button class="btn btn-primary" id="changePasswordButton" type="button">Save</button>
       </div>
     </div>
   </div>
@@ -145,15 +148,15 @@
 
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+<script crossorigin="anonymous"
         integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
-        crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+<script crossorigin="anonymous"
         integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
-        crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script crossorigin="anonymous"
         integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
-        crossorigin="anonymous"></script>
+        src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
 <script src="https://momentjs.com/downloads/moment.min.js"></script>
 <script src="index.js"></script>
 </body>

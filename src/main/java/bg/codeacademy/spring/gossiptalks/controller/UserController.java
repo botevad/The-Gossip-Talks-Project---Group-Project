@@ -5,6 +5,7 @@ import bg.codeacademy.spring.gossiptalks.dto.PageDto;
 import bg.codeacademy.spring.gossiptalks.dto.UserDto;
 import bg.codeacademy.spring.gossiptalks.model.Gossips;
 import bg.codeacademy.spring.gossiptalks.model.User;
+import bg.codeacademy.spring.gossiptalks.repository.GossipsRepository;
 import bg.codeacademy.spring.gossiptalks.service.GossipServiceImpl;
 import bg.codeacademy.spring.gossiptalks.service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,13 +29,15 @@ public class UserController
   private final UserServiceImpl       userService;
   private final GossipServiceImpl     gossipService;
   private final BCryptPasswordEncoder bCryptPasswordEncoder;
+  private final GossipsRepository     gossipsRepository;
 
   @Autowired
-  public UserController(UserServiceImpl userService, GossipServiceImpl gossipService, BCryptPasswordEncoder bCryptPasswordEncoder)
+  public UserController(UserServiceImpl userService, GossipServiceImpl gossipService, BCryptPasswordEncoder bCryptPasswordEncoder, GossipsRepository gossipsRepository)
   {
     this.userService = userService;
     this.gossipService = gossipService;
     this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+    this.gossipsRepository = gossipsRepository;
   }
 
   @GetMapping
@@ -60,9 +63,7 @@ public class UserController
       showUsersDto.add(userDto);
 
     }
-    return ResponseEntity.ok()
-        .header("Custom header", "The list of documents that can be loaded directly from swagger-ui, via \"urls\" configuration parameter.")
-        .body(showUsersDto);
+    return ResponseEntity.ok(showUsersDto);
   }
 
 
@@ -79,20 +80,15 @@ public class UserController
     user.setUsername(username);
     user.setPassword(bCryptPasswordEncoder.encode(password));
     user.setName(name);
-    if (userService.getUserByUsername(username) == null) {
-      userService.saveUser(user);
-      return ResponseEntity.ok().header("Custom header", "Successful operation").build();
-    }
-    else {
-      return ResponseEntity.badRequest().header("Custom header", "Failed").build();
-    }
+    userService.saveUser(user);
+    return ResponseEntity.ok().build();
   }
 
   @GetMapping("/me")
   @ResponseBody
   ResponseEntity<UserDto> showCurrentUser(Principal principal)
   {
-    User currentUser = userService.getUserByUsername(principal.getName());
+    User currentUser = userService.getUserByUsername(principal.getName()).get();
     UserDto currentUserDto = new UserDto();
     currentUserDto.setUsername(currentUser.getUsername());
     currentUserDto.setEmail(currentUser.getEmail());
@@ -108,7 +104,7 @@ public class UserController
                                                  Principal principal)
   {
 
-    userService.changePassword(userService.getUserByUsername(principal.getName()), oldPassword, password);
+    userService.changePassword(userService.getUserByUsername(principal.getName()).get(), oldPassword, password);
 
     return ResponseEntity.ok().build();
   }
@@ -119,7 +115,7 @@ public class UserController
                                      Principal principal)
   {
     List<User> currentUserList = userService.getFriendList(principal.getName());
-    User userToFollow = userService.getUserByUsername(username);
+    User userToFollow = userService.getUserByUsername(username).get();
     UserDto userDto = new UserDto();
     if (follow) {
       if (!currentUserList.contains(userToFollow)) {
@@ -152,19 +148,20 @@ public class UserController
                                                   @RequestParam(value = "pageSize", required = false, defaultValue = "20") Integer pageSize,
                                                   Principal principal)
   {
-    User userCheck = userService.getUserByUsername(username);
-    List<Gossips> userGossips = gossipService.findAllGossipsByUser(userCheck);
+    User userCheck = userService.getUserByUsername(username).get();
+
+    PageRequest pageRequest = PageRequest.of(pageNo, pageSize);
+    Page<Gossips> userGossips = gossipService.findAllGossipsByUser(userCheck, pageRequest);
     List<GossipDto> gossipsToShow = new ArrayList<>();
-    for (Gossips g : userGossips
-    ) {
+    for (Gossips gossips : userGossips) {
       GossipDto gDto = new GossipDto();
-      gDto.setId(Integer.toString(g.getId(), 32));
-      gDto.setUsername(g.getUser().getUsername());
-      gDto.setDatetime(g.getDate());
-      gDto.setText(g.getGossip());
+      gDto.setId(Integer.toString(gossips.getId(), 32));
+      gDto.setUsername(gossips.getUser().getUsername());
+      gDto.setDatetime(gossips.getDate());
+      gDto.setText(gossips.getGossip());
       gossipsToShow.add(gDto);
     }
-    PageRequest pageRequest = PageRequest.of(pageNo, pageSize);
+
     Page<User> page = new PageImpl(gossipsToShow, pageRequest, gossipsToShow.size());
     PageDto pageDto = new PageDto();
     pageDto.setNumberOfElemets(page.getSize());

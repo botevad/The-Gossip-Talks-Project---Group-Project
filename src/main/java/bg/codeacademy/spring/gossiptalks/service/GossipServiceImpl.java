@@ -5,9 +5,12 @@ import bg.codeacademy.spring.gossiptalks.model.User;
 import bg.codeacademy.spring.gossiptalks.repository.GossipsRepository;
 import bg.codeacademy.spring.gossiptalks.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,34 +30,27 @@ public class GossipServiceImpl implements GossipService
   }
 
   @Override
-  public List<Gossips> findAllGossipsByUser(User user)
+  public Page<Gossips> findAllGossipsByUser(User user, Pageable pageable)
   {
 
-    return gossipsRepository.findAllGossipsByUserOrderByDateDesc(user).get();
+    return gossipsRepository.findAllByUser(user, pageable).get();
   }
 
   @Override
-  public List<Gossips> getAllGossipsOfFriends(String username)
+  public Page<Gossips> getAllGossipsOfFriends(String username, Pageable pageable)
   {
     User currentUser = userRepository.findByUsername(username).get();
     List<User> friendList = userService.getFriendList(username);
-    List<Gossips> friendGossips = gossipsRepository
-        .findAll()
-        .stream()
-        .filter(gossips -> friendList.contains(gossips.getUser()))
-        .sorted(Comparator.comparing(Gossips::getDate).reversed())
-        .collect(Collectors.toList());
-//    List<Gossips> friendGossips = new ArrayList<>();
-//    for (User user: friendList) {
-//      List<Gossips> tempList = gossipsRepository.findAllGossipsByUserOrderByDateDesc(user).get();
-//      for (Gossips gossip: tempList) {
-//        friendGossips.add(gossip);
-//      }
-//    }
-//    List<Gossips> temp =gossipsRepository.findAll(pageable).getContent().stream()
-//        .filter(gossips -> friendList.contains(gossips.getUser())).collect(Collectors.toList());
-//        return new PageImpl(temp,pageable,temp.size());
-    return friendGossips;
+//    List<Gossips> friendGossips = gossipsRepository
+//        .findAll()
+//        .stream()
+//        .filter(gossips -> friendList.contains(gossips.getUser()))
+//        .collect(Collectors.toList());
+    List<Gossips> friendGossips = new ArrayList<>();
+    for (User friend : friendList) {
+      friendGossips.addAll(gossipsRepository.findAllByUser(friend, pageable).get().getContent());
+    }
+    return new PageImpl(friendGossips, pageable, friendGossips.size());
   }
 
   @Override

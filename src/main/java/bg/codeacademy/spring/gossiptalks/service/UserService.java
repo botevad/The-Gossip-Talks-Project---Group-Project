@@ -12,7 +12,7 @@ public interface UserService
 
  Boolean changePassword(User user, String oldPassword, String password);
 
- User getUserByUsername(String username);
+ Optional<User> getUserByUsername(String username);
 
  List<User> getFriendList(String name);
 

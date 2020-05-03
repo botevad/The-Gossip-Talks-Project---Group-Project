@@ -32,7 +32,8 @@ public class UserServiceImpl implements UserService
     if (!allUsers.isPresent()) {
       return userRepository.findAll();
     }
-    return allUsers.get(); //.get().sort(Comparator.comparing(getGossipsCount()));
+    //TODO  Sorting by gossips count.
+    return allUsers.get();
   }
 
   @Override

@@ -3,15 +3,15 @@ package bg.codeacademy.spring.gossiptalks.controller;
 import bg.codeacademy.spring.gossiptalks.dto.GossipDto;
 import bg.codeacademy.spring.gossiptalks.dto.PageDto;
 import bg.codeacademy.spring.gossiptalks.dto.UserDto;
-import bg.codeacademy.spring.gossiptalks.model.Gossips;
+import bg.codeacademy.spring.gossiptalks.model.Gossip;
 import bg.codeacademy.spring.gossiptalks.model.User;
-import bg.codeacademy.spring.gossiptalks.repository.GossipsRepository;
 import bg.codeacademy.spring.gossiptalks.service.GossipServiceImpl;
 import bg.codeacademy.spring.gossiptalks.service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -29,15 +29,14 @@ public class UserController
   private final UserServiceImpl       userService;
   private final GossipServiceImpl     gossipService;
   private final BCryptPasswordEncoder bCryptPasswordEncoder;
-  private final GossipsRepository     gossipsRepository;
+
 
   @Autowired
-  public UserController(UserServiceImpl userService, GossipServiceImpl gossipService, BCryptPasswordEncoder bCryptPasswordEncoder, GossipsRepository gossipsRepository)
+  public UserController(UserServiceImpl userService, GossipServiceImpl gossipService, BCryptPasswordEncoder bCryptPasswordEncoder)
   {
     this.userService = userService;
     this.gossipService = gossipService;
     this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-    this.gossipsRepository = gossipsRepository;
   }
 
   @GetMapping
@@ -47,7 +46,7 @@ public class UserController
                                                     Principal principal)
   {
     List<UserDto> showUsersDto = new ArrayList<>();
-    List<User> allUsers = userService.getAllUsers(name).get();
+    List<User> allUsers = userService.getAllUsers(name);
     List<User> friendList = userService.getFriendList(principal.getName());
     if (f) {
       allUsers = allUsers.stream()
@@ -63,25 +62,29 @@ public class UserController
       showUsersDto.add(userDto);
 
     }
+    showUsersDto.remove(userService.getUserByUsername(principal.getName()));
     return ResponseEntity.ok(showUsersDto);
   }
 
 
-  @PostMapping(value = "", consumes = {"multipart/form-data"})
-  public ResponseEntity<Void> createUser(@RequestParam(value = "email", required = true) String email,
-                                         @RequestParam(value = "name", required = false) String name,
-                                         @RequestParam(value = "password", required = true) String password,
-                                         @RequestParam(value = "username", required = true) String username,
-                                         @RequestParam(value = "following", required = false, defaultValue = "false") Boolean following,
-                                         Principal principal)
+  @PostMapping(consumes = {"multipart/form-data"})
+  public ResponseEntity<String> createUser(@RequestParam(value = "email", required = true) String email,
+                                           @RequestParam(value = "name", required = false) String name,
+                                           @RequestParam(value = "password", required = true) String password,
+                                           @RequestParam(value = "username", required = true) String username,
+                                           @RequestParam(value = "following", required = false, defaultValue = "false") Boolean following,
+                                           Principal principal)
   {
     User user = new User();
     user.setEmail(email);
     user.setUsername(username);
     user.setPassword(bCryptPasswordEncoder.encode(password));
     user.setName(name);
+    if (userService.getUserByUsername(username).isPresent()) {
+      return ResponseEntity.badRequest().body("Failed");
+    }
     userService.saveUser(user);
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok().body("Successful operation");
   }
 
   @GetMapping("/me")
@@ -98,48 +101,43 @@ public class UserController
   }
 
   @PostMapping("/me")
-  public ResponseEntity<Void> changeUserPassword(@RequestParam(value = "password", required = true) String password,
-                                                 @RequestParam(value = "passwordConfirmation", required = true) String passwordConfirmation,
-                                                 @RequestParam(value = "oldPassword", required = true) String oldPassword,
-                                                 Principal principal)
+  public ResponseEntity<String> changeUserPassword(@RequestParam(value = "password", required = true) String password,
+                                                   @RequestParam(value = "passwordConfirmation", required = true) String passwordConfirmation,
+                                                   @RequestParam(value = "oldPassword", required = true) String oldPassword,
+                                                   Principal principal)
   {
 
-    userService.changePassword(userService.getUserByUsername(principal.getName()).get(), oldPassword, password);
-
-    return ResponseEntity.ok().build();
+    if (userService.changePassword(userService.getUserByUsername(principal.getName()).get(), oldPassword, password)) {
+      return ResponseEntity.ok().body("Successful operation");
+    }
+    return ResponseEntity.badRequest().body("Failed");
   }
 
   @PostMapping(value = "/{username}/follow", consumes = "multipart/form-data")
-  ResponseEntity<UserDto> followUser(@PathVariable("username") String username,
-                                     @RequestParam(value = "follow", required = true) Boolean follow,
-                                     Principal principal)
+  ResponseEntity<String> followUser(@PathVariable("username") String username,
+                                    @RequestParam(value = "follow", required = true) Boolean follow,
+                                    Principal principal)
   {
     List<User> currentUserList = userService.getFriendList(principal.getName());
     User userToFollow = userService.getUserByUsername(username).get();
     UserDto userDto = new UserDto();
-    if (follow) {
-      if (!currentUserList.contains(userToFollow)) {
-        currentUserList.add(userToFollow);
-      }
-      else {
-        return ResponseEntity.badRequest().build();
-      }
+    if (follow && !currentUserList.contains(userToFollow)) {
+      currentUserList.add(userToFollow);
     }
-    if (!follow) {
-      if (currentUserList.contains(userToFollow)) {
-        currentUserList.remove(userToFollow);
-      }
-      else {
-        return ResponseEntity.badRequest().build();
-      }
+    else if (!follow && currentUserList.contains(userToFollow)) {
+      currentUserList.remove(userToFollow);
     }
+    else {
+      return ResponseEntity.badRequest().body("Failed - already subscriber or not subscribed.");
+    }
+
     userService.saveUserFriendList(principal.getName(), currentUserList);
 
-    userDto.setEmail(userToFollow.getEmail());
-    userDto.setUsername(userToFollow.getUsername());
-    userDto.setName(userToFollow.getName());
-    userDto.setFollowing(currentUserList.contains(userToFollow));
-    return ResponseEntity.ok(userDto);
+//    userDto.setEmail(userToFollow.getEmail());
+//    userDto.setUsername(userToFollow.getUsername());
+//    userDto.setName(userToFollow.getName());
+//    userDto.setFollowing(currentUserList.contains(userToFollow));
+    return ResponseEntity.ok("Successful operation");
   }
 
   @GetMapping("/{username}/gossips")
@@ -149,16 +147,15 @@ public class UserController
                                                   Principal principal)
   {
     User userCheck = userService.getUserByUsername(username).get();
-
-    PageRequest pageRequest = PageRequest.of(pageNo, pageSize);
-    Page<Gossips> userGossips = gossipService.findAllGossipsByUser(userCheck, pageRequest);
+    PageRequest pageRequest = PageRequest.of(pageNo, pageSize, Sort.by("datetime"));
+    Page<Gossip> userGossips = gossipService.findAllGossipsByUser(userCheck, pageRequest);
     List<GossipDto> gossipsToShow = new ArrayList<>();
-    for (Gossips gossips : userGossips) {
+    for (Gossip gossip : userGossips) {
       GossipDto gDto = new GossipDto();
-      gDto.setId(Integer.toString(gossips.getId(), 32));
-      gDto.setUsername(gossips.getUser().getUsername());
-      gDto.setDatetime(gossips.getDate());
-      gDto.setText(gossips.getGossip());
+      gDto.setId(Integer.toString(gossip.getId(), 32));
+      gDto.setUsername(gossip.getUser().getUsername());
+      gDto.setDatetime(gossip.getDatetime());
+      gDto.setText(gossip.getGossip());
       gossipsToShow.add(gDto);
     }
 

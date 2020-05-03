@@ -26,16 +26,13 @@ public class UserServiceImpl implements UserService
   }
 
   @Override
-  public Optional<List<User>> getAllUsers(String name)
+  public List<User> getAllUsers(String name)
   {
     Optional<List<User>> allUsers = userRepository.findByNameContaining(name);
     if (!allUsers.isPresent()) {
-      return Optional.of(userRepository.findAll());
+      return userRepository.findAll();
     }
-    return Optional.of(allUsers.get());
-//TODO        .stream()
-//        .sorted(Comparator.comparing(user -> gossipsRepository.findAllGossipsByUserOrderByDateDesc((User)user).get().size()).reversed())
-//        .collect(Collectors.toList()));
+    return allUsers.get(); //.get().sort(Comparator.comparing(getGossipsCount()));
   }
 
   @Override
@@ -88,5 +85,10 @@ public class UserServiceImpl implements UserService
     User userToSave = userRepository.findByUsername(username).get();
     userToSave.setFriendList(friendList);
     userRepository.save(userToSave);
+  }
+
+  public Integer getGossipsCount(User user)
+  {
+    return gossipsRepository.findAllByUser(user).get().size();
   }
 }

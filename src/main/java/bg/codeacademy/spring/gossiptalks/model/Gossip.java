@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @Table
-public class Gossips
+public class Gossip
 {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -22,5 +22,5 @@ public class Gossips
   @ManyToOne
   private User          user;
   @Column(updatable = false)
-  private LocalDateTime date;
+  private LocalDateTime datetime;
 }

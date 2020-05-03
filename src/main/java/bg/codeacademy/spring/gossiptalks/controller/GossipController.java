@@ -2,7 +2,7 @@ package bg.codeacademy.spring.gossiptalks.controller;
 
 import bg.codeacademy.spring.gossiptalks.dto.GossipDto;
 import bg.codeacademy.spring.gossiptalks.dto.PageDto;
-import bg.codeacademy.spring.gossiptalks.model.Gossips;
+import bg.codeacademy.spring.gossiptalks.model.Gossip;
 import bg.codeacademy.spring.gossiptalks.model.User;
 import bg.codeacademy.spring.gossiptalks.service.GossipServiceImpl;
 import bg.codeacademy.spring.gossiptalks.service.UserServiceImpl;
@@ -43,17 +43,17 @@ public class GossipController
   {
     User currentUser = userService.getUserByUsername(principal.getName()).get();
 
-    Gossips gossip = new Gossips();
+    Gossip gossip = new Gossip();
     gossip.setGossip(text);
     gossip.setUser(currentUser);
-    gossip.setDate(LocalDateTime.now());
+    gossip.setDatetime(LocalDateTime.now());
     gossipService.saveGossip(gossip);
 
     GossipDto gossipDto = new GossipDto();
     gossipDto.setId(Integer.toString(gossip.getId(), 32));
     gossipDto.setText(gossip.getGossip());
     gossipDto.setUsername(gossip.getUser().getUsername());
-    gossipDto.setDatetime(gossip.getDate());
+    gossipDto.setDatetime(gossip.getDatetime());
 
     return ResponseEntity.ok().header("responseHeader", "Successful operation").body(gossipDto);
   }
@@ -69,14 +69,14 @@ public class GossipController
     Pageable pageRequest = PageRequest.of(pageNo, pageSize);
     Optional<User> currentUser = userService.getUserByUsername(principal.getName());
 
-    Page<Gossips> friendsGossips = gossipService.getAllGossipsOfFriends(principal.getName(), pageRequest);
+    Page<Gossip> friendsGossips = gossipService.getAllGossipsOfFriends(principal.getName(), pageRequest);
     List<GossipDto> gossipDtos = new ArrayList<>();
-    for (Gossips gossips : friendsGossips) {
+    for (Gossip gossip : friendsGossips) {
       GossipDto gDto = new GossipDto();
-      gDto.setId(Integer.toString(gossips.getId(), 32));
-      gDto.setUsername(gossips.getUser().getUsername());
-      gDto.setDatetime(gossips.getDate());
-      gDto.setText(gossips.getGossip());
+      gDto.setId(Integer.toString(gossip.getId(), 32));
+      gDto.setUsername(gossip.getUser().getUsername());
+      gDto.setDatetime(gossip.getDatetime());
+      gDto.setText(gossip.getGossip());
       gossipDtos.add(gDto);
     }
 

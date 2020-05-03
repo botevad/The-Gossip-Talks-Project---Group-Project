@@ -1,11 +1,13 @@
 package bg.codeacademy.spring.gossiptalks.service;
 
 import bg.codeacademy.spring.gossiptalks.model.User;
+import bg.codeacademy.spring.gossiptalks.repository.GossipsRepository;
 import bg.codeacademy.spring.gossiptalks.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -16,12 +18,14 @@ public class UserServiceImpl implements UserService
 {
   private final UserRepository        userRepository;
   private final BCryptPasswordEncoder bCryptPasswordEncoder;
+  private final GossipsRepository     gossipsRepository;
 
   @Autowired
-  public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder)
+  public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, GossipsRepository gossipsRepository)
   {
     this.userRepository = userRepository;
     this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+    this.gossipsRepository = gossipsRepository;
   }
 
   @Override
@@ -29,11 +33,11 @@ public class UserServiceImpl implements UserService
   {
     Optional<List<User>> allUsers = userRepository.findByNameContaining(name);
     if (!allUsers.isPresent()) {
-      return Optional.of(userRepository.findAll());
+      return Optional.of(new ArrayList<>());
     }
     return Optional.of(allUsers.get()
         .stream()
-        .sorted(Comparator.comparing(User::countFriends))
+        .sorted(Comparator.comparing(user -> gossipsRepository.findAllGossipsByUserOrderByDateDesc(user).get().size()))
         .collect(Collectors.toList()));
   }
 
@@ -49,25 +53,22 @@ public class UserServiceImpl implements UserService
   }
 
   @Override
-  public Optional<User> getUserByUsername(String username)
+  public User getUserByUsername(String username)
   {
 
-    return Optional.ofNullable(userRepository.findByUsername(username).orElse(null));
+    return (userRepository.findByUsername(username).orElse(null));
   }
 
   @Override
   public List<User> getFriendList(String username)
   {
-    User user = getUserByUsername(username).get();
-
-
-    return user.getFriendList();
+    return getUserByUsername(username).getFriendList();
   }
 
   @Override
   public void followUser(String username, User userToAdd)
   {
-    User currentUser = getUserByUsername(username).get();
+    User currentUser = getUserByUsername(username);
     List<User> friendList = getFriendList(username);
     friendList.add(userToAdd);
     currentUser.setFriendList(friendList);

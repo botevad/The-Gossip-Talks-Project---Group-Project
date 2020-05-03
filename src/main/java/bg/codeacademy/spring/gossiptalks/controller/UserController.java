@@ -60,7 +60,9 @@ public class UserController
       showUsersDto.add(userDto);
 
     }
-    return ResponseEntity.ok(showUsersDto);
+    return ResponseEntity.ok()
+        .header("Custom header", "The list of documents that can be loaded directly from swagger-ui, via \"urls\" configuration parameter.")
+        .body(showUsersDto);
   }
 
 
@@ -77,15 +79,20 @@ public class UserController
     user.setUsername(username);
     user.setPassword(bCryptPasswordEncoder.encode(password));
     user.setName(name);
-    userService.saveUser(user);
-    return ResponseEntity.ok().build();
+    if (userService.getUserByUsername(username) == null) {
+      userService.saveUser(user);
+      return ResponseEntity.ok().header("Custom header", "Successful operation").build();
+    }
+    else {
+      return ResponseEntity.badRequest().header("Custom header", "Failed").build();
+    }
   }
 
   @GetMapping("/me")
   @ResponseBody
   ResponseEntity<UserDto> showCurrentUser(Principal principal)
   {
-    User currentUser = userService.getUserByUsername(principal.getName()).get();
+    User currentUser = userService.getUserByUsername(principal.getName());
     UserDto currentUserDto = new UserDto();
     currentUserDto.setUsername(currentUser.getUsername());
     currentUserDto.setEmail(currentUser.getEmail());
@@ -101,7 +108,7 @@ public class UserController
                                                  Principal principal)
   {
 
-    userService.changePassword(userService.getUserByUsername(principal.getName()).get(), oldPassword, password);
+    userService.changePassword(userService.getUserByUsername(principal.getName()), oldPassword, password);
 
     return ResponseEntity.ok().build();
   }
@@ -112,7 +119,7 @@ public class UserController
                                      Principal principal)
   {
     List<User> currentUserList = userService.getFriendList(principal.getName());
-    User userToFollow = userService.getUserByUsername(username).get();
+    User userToFollow = userService.getUserByUsername(username);
     UserDto userDto = new UserDto();
     if (follow) {
       if (!currentUserList.contains(userToFollow)) {
@@ -145,10 +152,8 @@ public class UserController
                                                   @RequestParam(value = "pageSize", required = false, defaultValue = "20") Integer pageSize,
                                                   Principal principal)
   {
-    User userCheck = userService.getUserByUsername(username).get();
-
-    PageRequest pageRequest = PageRequest.of(pageNo, pageSize);
-    Page<Gossips> userGossips = gossipService.findAllGossipsByUser(userCheck, pageRequest);
+    User userCheck = userService.getUserByUsername(username);
+    List<Gossips> userGossips = gossipService.findAllGossipsByUser(userCheck);
     List<GossipDto> gossipsToShow = new ArrayList<>();
     for (Gossips g : userGossips
     ) {
@@ -159,7 +164,7 @@ public class UserController
       gDto.setText(g.getGossip());
       gossipsToShow.add(gDto);
     }
-
+    PageRequest pageRequest = PageRequest.of(pageNo, pageSize);
     Page<User> page = new PageImpl(gossipsToShow, pageRequest, gossipsToShow.size());
     PageDto pageDto = new PageDto();
     pageDto.setNumberOfElemets(page.getSize());

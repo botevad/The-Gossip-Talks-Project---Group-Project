@@ -11,7 +11,6 @@ public class UserDto
 {
   private String  email;
   private String  username;
-  private Boolean following;
   private String  name;
-
+  private Boolean following;
 }

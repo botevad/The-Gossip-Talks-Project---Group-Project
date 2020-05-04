@@ -1,41 +1,39 @@
 package bg.codeacademy.spring.gossiptalks.service;
 
 import bg.codeacademy.spring.gossiptalks.model.User;
+import bg.codeacademy.spring.gossiptalks.repository.GossipsRepository;
 import bg.codeacademy.spring.gossiptalks.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService
 {
   private final UserRepository        userRepository;
+  private final GossipsRepository     gossipsRepository;
   private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
   @Autowired
-  public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder)
+  public UserServiceImpl(UserRepository userRepository, GossipsRepository gossipsRepository, BCryptPasswordEncoder bCryptPasswordEncoder)
   {
     this.userRepository = userRepository;
+    this.gossipsRepository = gossipsRepository;
     this.bCryptPasswordEncoder = bCryptPasswordEncoder;
   }
 
   @Override
-  public Optional<List<User>> getAllUsers(String name)
+  public List<User> getAllUsers(String name)
   {
     Optional<List<User>> allUsers = userRepository.findByNameContaining(name);
     if (!allUsers.isPresent()) {
-      return Optional.of(userRepository.findAll());
+      return userRepository.findAll();
     }
-    return Optional.of(allUsers.get()
-        .stream()
-        .sorted(Comparator.comparing(User::countFriends))
-        .collect(Collectors.toList()));
+    //TODO  Sorting by gossips count.
+    return allUsers.get();
   }
 
   @Override
@@ -60,8 +58,8 @@ public class UserServiceImpl implements UserService
   public List<User> getFriendList(String username)
   {
     User user = getUserByUsername(username).get();
-    if (user.getFriendList() == null) {
-      user.setFriendList(new ArrayList<>());
+
+
     }
     return user.getFriendList();
   }
@@ -69,9 +67,11 @@ public class UserServiceImpl implements UserService
   @Override
   public void followUser(String username, User userToAdd)
   {
+    User currentUser = getUserByUsername(username).get();
     List<User> friendList = getFriendList(username);
     friendList.add(userToAdd);
-    getUserByUsername(username).get().setFriendList(friendList);
+    currentUser.setFriendList(friendList);
+    userRepository.save(currentUser);
 
   }
 
@@ -84,6 +84,13 @@ public class UserServiceImpl implements UserService
   @Override
   public void saveUserFriendList(String username, List<User> friendList)
   {
-    userRepository.findByUsername(username).get().setFriendList(friendList);
+    User userToSave = userRepository.findByUsername(username).get();
+    userToSave.setFriendList(friendList);
+    userRepository.save(userToSave);
+  }
+
+  public Integer getGossipsCount(User user)
+  {
+    return gossipsRepository.findAllByUser(user).get().size();
   }
 }

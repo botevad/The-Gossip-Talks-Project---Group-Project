@@ -1,76 +1,90 @@
 package bg.codeacademy.spring.gossiptalks.controller;
 
 import bg.codeacademy.spring.gossiptalks.dto.GossipDto;
-import bg.codeacademy.spring.gossiptalks.model.Gossips;
+import bg.codeacademy.spring.gossiptalks.dto.PageDto;
+import bg.codeacademy.spring.gossiptalks.model.Gossip;
 import bg.codeacademy.spring.gossiptalks.model.User;
 import bg.codeacademy.spring.gossiptalks.service.GossipServiceImpl;
 import bg.codeacademy.spring.gossiptalks.service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/gossips")
 public class GossipController
 {
-  private final GossipServiceImpl gossipService;
-  private final UserServiceImpl   userService;
+  private final GossipServiceImpl         gossipService;
+  private final UserServiceImpl           userService;
+  private final ApplicationEventPublisher eventPublisher;
 
   @Autowired
-  public GossipController(GossipServiceImpl gossipService, UserServiceImpl userService)
+  public GossipController(GossipServiceImpl gossipService, UserServiceImpl userService, ApplicationEventPublisher eventPublisher)
   {
     this.gossipService = gossipService;
     this.userService = userService;
+    this.eventPublisher = eventPublisher;
   }
 
-  @PostMapping(produces = {"application/json"},
-      consumes = {"multipart/form-data"})
-  public ResponseEntity<GossipDto> postGossip(@RequestParam(value = "text") @Valid String gossip,
-                                            Principal principal)
+  @PostMapping(consumes = "multipart/form-data")
+  public ResponseEntity<GossipDto> postGossip(@RequestParam String text,
+                                              Principal principal)
   {
-    Gossips newGossip = new Gossips();
-    newGossip.setGossip(gossip);
-    User user = userService.getUserByUsername(principal.getName()).get();
-    newGossip.setUser(user);
-    gossipService.addGossip(newGossip);
-    GossipDto gDto = new GossipDto();
-    gDto.setId(Integer.toString(newGossip.getId(), 32));
-    gDto.setUsername(newGossip.getUser().getUsername());
-    gDto.setDate(newGossip.getDate());
-    gDto.setGossip(newGossip.getGossip());
-    return ResponseEntity.ok(gDto);
+    User currentUser = userService.getUserByUsername(principal.getName()).get();
+
+    Gossip gossip = new Gossip();
+    gossip.setGossip(text);
+    gossip.setUser(currentUser);
+    gossip.setDatetime(LocalDateTime.now());
+    gossipService.saveGossip(gossip);
+
+    GossipDto gossipDto = new GossipDto();
+    gossipDto.setId(Integer.toString(gossip.getId(), 32));
+    gossipDto.setText(gossip.getGossip());
+    gossipDto.setUsername(gossip.getUser().getUsername());
+    gossipDto.setDatetime(gossip.getDatetime());
+
+    return ResponseEntity.ok().header("responseHeader", "Successful operation").body(gossipDto);
   }
 
   @GetMapping()
-  public ResponseEntity<List<GossipDto>> getGossipsOfFriends(Principal principal)
+  public ResponseEntity<PageDto> getGossipsOfUser(
+
+      @RequestParam(value = "pageNo", required = false, defaultValue = "0") Integer pageNo,
+      @RequestParam(value = "pageSize", required = false, defaultValue = "20") Integer pageSize,
+      Principal principal)
+
   {
-    User user = userService.getUserByUsername(principal.getName()).get();
-    List<User> friends = user.getFriendList();
-    List<GossipDto> gossipsToShow = new ArrayList<>();
-    if (!friends.isEmpty()) {
-      for (User friend : friends) {
-        List<Gossips> userGossips = gossipService.findAllGossipsByUser(friend);
-        if (!userGossips.isEmpty()) {
-          for (Gossips g : userGossips
-          ) {
-            GossipDto gDto = new GossipDto();
-            gDto.setId(Integer.toString(g.getId(), 32));
-            gDto.setUsername(g.getUser().getUsername());
-            gDto.setDate(g.getDate());
-            gDto.setGossip(g.getGossip());
-            gossipsToShow.add(gDto);
-          }
-        }
-      }
+    Pageable pageRequest = PageRequest.of(pageNo, pageSize);
+    Optional<User> currentUser = userService.getUserByUsername(principal.getName());
+
+    Page<Gossip> friendsGossips = gossipService.getAllGossipsOfFriends(principal.getName(), pageRequest);
+    List<GossipDto> gossipDtos = new ArrayList<>();
+    for (Gossip gossip : friendsGossips) {
+      GossipDto gDto = new GossipDto();
+      gDto.setId(Integer.toString(gossip.getId(), 32));
+      gDto.setUsername(gossip.getUser().getUsername());
+      gDto.setDatetime(gossip.getDatetime());
+      gDto.setText(gossip.getGossip());
+      gossipDtos.add(gDto);
     }
-    gossipsToShow.sort(Comparator.comparing(GossipDto::getDate));
-    return ResponseEntity.ok(gossipsToShow);
+
+    Page<User> page = new PageImpl(gossipDtos, pageRequest, gossipDtos.size());
+    PageDto pageDto = new PageDto();
+    pageDto.setNumberOfElemets(page.getSize());
+    pageDto.setTotalElements(page.getTotalElements());
+    pageDto.setContent(page.getContent());
+    return ResponseEntity.ok(pageDto);
   }
 }

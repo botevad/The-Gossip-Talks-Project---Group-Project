@@ -13,12 +13,17 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class GossipDto
 {
+  @NotNull()
+  private String id;
+
+  @NotNull()
+  private String username;
+
+  private LocalDateTime datetime;
+
   @NotNull(message = "The gossip cannot be NULL!")
   @NotHTML
-  private String        gossip;
-  private String id;
-  private LocalDateTime date;
-  @NotNull()
-  private String        username;
+  private String text;
+
 
 }

@@ -1,3 +1,9 @@
 2020-04-28 16:02:23 jdbc[13]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "DROP ALL USERS[*]"; expected "OBJECTS"; SQL statement:
 drop all users [42001-200]
+2020-04-30 18:27:04 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "DELETE *[*] WHERE ID = 34"; expected "identifier"; SQL statement:
+DELETE * WHERE id = 34 [42001-200]
+2020-04-30 18:27:19 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "DELETE *[*] WHERE IDENTIFIER = 34"; expected "identifier"; SQL statement:
+DELETE * WHERE identifier = 34 [42001-200]

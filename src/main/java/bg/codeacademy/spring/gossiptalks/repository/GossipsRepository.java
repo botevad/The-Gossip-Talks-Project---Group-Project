@@ -14,9 +14,11 @@ import java.util.Optional;
 @Repository
 public interface GossipsRepository extends JpaRepository<Gossip, Integer>
 {
-  Optional<Page<Gossip>> findAllByUser(User user, Pageable pageable);
+
 
   List<Gossip> findAllByUser(User user);
+
+  Optional<Page<Gossip>> findAllByUserOrderByDatetimeDesc(User user, Pageable pageable);
 
   @Query(value = "SELECT * FROM GOSSIP WHERE USER_ID  IN (SELECT DISTINCT USER_ID  FROM USER_FRIEND_LIST) ORDER BY DATETIME DESC", nativeQuery = true)
   Optional<Page<Gossip>> findAllGossipsOfFriend(Pageable pageable);

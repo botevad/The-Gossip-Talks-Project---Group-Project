@@ -28,25 +28,12 @@ public class GossipServiceImpl implements GossipService
   public Page<Gossip> findAllGossipsByUser(User user, Pageable pageable)
   {
 
-    return gossipsRepository.findAllByUser(user, pageable).get();
+    return gossipsRepository.findAllByUserOrderByDatetimeDesc(user, pageable).get();
   }
 
   @Override
   public Page<Gossip> getAllGossipsOfFriends(String username, Pageable pageable)
   {
-//    User currentUser = userRepository.findByUsername(username).get();
-//    List<User> friendList = userService.getFriendList(username);
-//    List<Gossip> friendGossips = gossipsRepository
-//        .findAll()
-//        .stream()
-//        .filter(gossips -> friendList.contains(gossips.getUser()))
-//        .sorted(Comparator.comparing(Gossip::getDatetime))
-//        .collect(Collectors.toList());
-//    List<Gossip> friendGossips = new ArrayList<>();
-//    for (User friend : friendList) {
-//      friendGossips.addAll(gossipsRepository.findAllByUser(friend,pageable).get().getContent());
-//    }
-//    friendGossips.sort(Comparator.comparing(Gossip::getDatetime));
     return gossipsRepository.findAllGossipsOfFriend(pageable).get();
   }
 

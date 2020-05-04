@@ -10,7 +10,6 @@ import bg.codeacademy.spring.gossiptalks.service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -152,7 +151,7 @@ public class UserController
                                                   Principal principal)
   {
     User userCheck = userService.getUserByUsername(username).get();
-    PageRequest pageRequest = PageRequest.of(pageNo, pageSize, Sort.by("datetime"));
+    PageRequest pageRequest = PageRequest.of(pageNo, pageSize);
     Page<Gossip> userGossips = gossipService.findAllGossipsByUser(userCheck, pageRequest);
     if (pageNo > userGossips.getTotalPages()) {
       return ResponseEntity.notFound().build();

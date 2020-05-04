@@ -60,7 +60,6 @@ public class UserServiceImpl implements UserService
     User user = getUserByUsername(username).get();
 
 
-    }
     return user.getFriendList();
   }
 

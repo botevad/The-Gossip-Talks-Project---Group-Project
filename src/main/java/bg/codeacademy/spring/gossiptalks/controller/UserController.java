@@ -39,7 +39,6 @@ public class UserController
     this.bCryptPasswordEncoder = bCryptPasswordEncoder;
   }
 
-
   @GetMapping
   @ResponseBody
   public ResponseEntity<List<UserDto>> showAllUsers(@RequestParam(value = "name", required = false, defaultValue = "*") String name,
@@ -167,4 +166,5 @@ public class UserController
     pageDto.setContent(page.getContent());
     return ResponseEntity.ok(pageDto);
   }
+
 }

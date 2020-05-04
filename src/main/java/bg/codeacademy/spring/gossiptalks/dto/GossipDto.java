@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class GossipDto
 {
-  @NotNull()
+
   private String id;
 
   @NotNull()

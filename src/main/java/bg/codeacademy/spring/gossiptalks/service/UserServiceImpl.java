@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService
@@ -30,10 +31,10 @@ public class UserServiceImpl implements UserService
   {
     Optional<List<User>> allUsers = userRepository.findByNameContaining(name);
     if (!allUsers.isPresent()) {
-      return userRepository.findAll();
+      return sortedUsers(userRepository.findAll());
+
     }
-    //TODO  Sorting by gossips count.
-    return allUsers.get();
+    return sortedUsers(allUsers.get());
   }
 
   @Override
@@ -90,6 +91,13 @@ public class UserServiceImpl implements UserService
 
   public Integer getGossipsCount(User user)
   {
-    return gossipsRepository.findAllByUser(user).get().size();
+    return (gossipsRepository.findAllByUser(user).size());
+  }
+
+  public List<User> sortedUsers(List<User> users)
+  {
+    return users.stream()
+        .sorted((u1, u2) -> gossipsRepository.findAllByUser(u1).size() - gossipsRepository.findAllByUser(u2).size())
+        .collect(Collectors.toList());
   }
 }

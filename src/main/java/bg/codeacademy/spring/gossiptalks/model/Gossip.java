@@ -18,7 +18,7 @@ public class Gossip
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Integer       id;
   @Column(updatable = false)
-  private String        gossip;
+  private String        text;
   @ManyToOne
   private User          user;
   @Column(updatable = false)

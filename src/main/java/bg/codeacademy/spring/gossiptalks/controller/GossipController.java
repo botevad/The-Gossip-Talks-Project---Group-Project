@@ -9,7 +9,6 @@ import bg.codeacademy.spring.gossiptalks.service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -44,22 +43,22 @@ public class GossipController
     User currentUser = userService.getUserByUsername(principal.getName()).get();
 
     Gossip gossip = new Gossip();
-    gossip.setGossip(text);
+    gossip.setText(text);
     gossip.setUser(currentUser);
     gossip.setDatetime(LocalDateTime.now());
     gossipService.saveGossip(gossip);
 
     GossipDto gossipDto = new GossipDto();
     gossipDto.setId(Integer.toString(gossip.getId(), 32));
-    gossipDto.setText(gossip.getGossip());
+    gossipDto.setText(gossip.getText());
     gossipDto.setUsername(gossip.getUser().getUsername());
     gossipDto.setDatetime(gossip.getDatetime());
 
-    return ResponseEntity.ok().header("responseHeader", "Successful operation").body(gossipDto);
+    return ResponseEntity.ok(gossipDto);
   }
 
   @GetMapping()
-  public ResponseEntity<PageDto> getGossipsOfUser(
+  public ResponseEntity<PageDto> getGossipsOfFriend(
 
       @RequestParam(value = "pageNo", required = false, defaultValue = "0") Integer pageNo,
       @RequestParam(value = "pageSize", required = false, defaultValue = "20") Integer pageSize,
@@ -68,23 +67,26 @@ public class GossipController
   {
     Pageable pageRequest = PageRequest.of(pageNo, pageSize);
     Optional<User> currentUser = userService.getUserByUsername(principal.getName());
-
     Page<Gossip> friendsGossips = gossipService.getAllGossipsOfFriends(principal.getName(), pageRequest);
-    List<GossipDto> gossipDtos = new ArrayList<>();
-    for (Gossip gossip : friendsGossips) {
-      GossipDto gDto = new GossipDto();
-      gDto.setId(Integer.toString(gossip.getId(), 32));
-      gDto.setUsername(gossip.getUser().getUsername());
-      gDto.setDatetime(gossip.getDatetime());
-      gDto.setText(gossip.getGossip());
-      gossipDtos.add(gDto);
+    if (pageNo > friendsGossips.getTotalPages()) {
+      return ResponseEntity.notFound().build();
     }
+    else {
+      List<GossipDto> gossipDtos = new ArrayList<>();
+      for (Gossip gossip : friendsGossips.getContent()) {
+        GossipDto gossipDto = new GossipDto();
+        gossipDto.setId(Integer.toString(gossip.getId(), 32));
+        gossipDto.setUsername(gossip.getUser().getUsername());
+        gossipDto.setDatetime(gossip.getDatetime());
+        gossipDto.setText(gossip.getText());
+        gossipDtos.add(gossipDto);
+      }
 
-    Page<User> page = new PageImpl(gossipDtos, pageRequest, gossipDtos.size());
-    PageDto pageDto = new PageDto();
-    pageDto.setNumberOfElemets(page.getSize());
-    pageDto.setTotalElements(page.getTotalElements());
-    pageDto.setContent(page.getContent());
-    return ResponseEntity.ok(pageDto);
+      PageDto pageDto = new PageDto();
+      pageDto.setNumberOfElemets(pageSize);
+      pageDto.setTotalElements(friendsGossips.getContent().size());
+      pageDto.setContent(gossipDtos);
+      return ResponseEntity.ok(pageDto);
+    }
   }
 }

@@ -1,11 +1,9 @@
 package bg.codeacademy.spring.gossiptalks.controller;
 
 import bg.codeacademy.spring.gossiptalks.Main;
-import bg.codeacademy.spring.gossiptalks.service.GossipServiceImpl;
 import bg.codeacademy.spring.gossiptalks.service.UserServiceImpl;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
@@ -14,9 +12,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import static org.hamcrest.Matchers.equalTo;
 
-
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = Main.class)
-public class GossipControllerTest extends AbstractTestNGSpringContextTests
+public class UserControllerTest extends AbstractTestNGSpringContextTests
 {
   @LocalServerPort
   int port;
@@ -28,26 +25,18 @@ public class GossipControllerTest extends AbstractTestNGSpringContextTests
   }
 
   @Test
-  public void post_gossip_response_200()
+  public void show_current_user_200()
   {
-    RestAssured.given()
-        .auth().basic("admin", "1234")
-        .contentType("multipart/form-data")
-        .multiPart("text", "Gossip1")
-        .when().post("/api/v1/gossips")
-        .then().assertThat().statusCode(200).and().contentType(ContentType.JSON)
-        .body("text", equalTo("Gossip1"));
+    RestAssured.given().auth().basic("admin", "1234")
+        .when().get("/api/v1/users/me").then().assertThat().statusCode(200).and()
+        .contentType(ContentType.JSON).body("username", equalTo("admin")
+    ,"name", equalTo("Administrator"),
+        "email", equalTo("admin@email.com"));
   }
 
   @Test
-  public void post_gossip_response_500()
-  {
-    RestAssured.given()
-        .auth().basic("admin", "1234")
-        .contentType("multipart/form-data")
-        .multiPart("text", "")
-        .when().post("/api/v1/gossips")
-        .then().assertThat().statusCode(500);
+  public void equalsContract() {
+    EqualsVerifier.forClass(UserServiceImpl.class).report();
   }
 
 

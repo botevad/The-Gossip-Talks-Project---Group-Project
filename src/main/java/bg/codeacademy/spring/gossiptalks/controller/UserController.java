@@ -9,9 +9,7 @@ import bg.codeacademy.spring.gossiptalks.service.GossipServiceImpl;
 import bg.codeacademy.spring.gossiptalks.service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -69,7 +67,7 @@ public class UserController
 
   @PostMapping(consumes = {"multipart/form-data"})
   public ResponseEntity<String> createUser(@RequestParam(value = "email", required = true) String email,
-                                           @RequestParam(value = "name", required = false) String name,
+                                           @RequestParam(value = "name", required = false, defaultValue = "") String name,
                                            @RequestParam(value = "password", required = true) String password,
                                            @RequestParam(value = "username", required = true) String username,
                                            @RequestParam(value = "following", required = false, defaultValue = "false") Boolean following,
@@ -81,10 +79,10 @@ public class UserController
     user.setPassword(bCryptPasswordEncoder.encode(password));
     user.setName(name);
     if (userService.getUserByUsername(username).isPresent()) {
-      return ResponseEntity.badRequest().body("Failed");
+      return ResponseEntity.badRequest().build();
     }
     userService.saveUser(user);
-    return ResponseEntity.ok().body("Successful operation");
+    return ResponseEntity.ok().build();
   }
 
   @GetMapping("/me")
@@ -101,26 +99,31 @@ public class UserController
   }
 
   @PostMapping("/me")
-  public ResponseEntity<String> changeUserPassword(@RequestParam(value = "password", required = true) String password,
-                                                   @RequestParam(value = "passwordConfirmation", required = true) String passwordConfirmation,
-                                                   @RequestParam(value = "oldPassword", required = true) String oldPassword,
-                                                   Principal principal)
+  public ResponseEntity<UserDto> changeUserPassword(@RequestParam(value = "password", required = true) String password,
+                                                    @RequestParam(value = "passwordConfirmation", required = true) String passwordConfirmation,
+                                                    @RequestParam(value = "oldPassword", required = true) String oldPassword,
+                                                    Principal principal)
   {
 
     if (userService.changePassword(userService.getUserByUsername(principal.getName()).get(), oldPassword, password)) {
-      return ResponseEntity.ok().body("Successful operation");
+      User currentUser = userService.getUserByUsername(principal.getName()).get();
+      UserDto userDto = new UserDto();
+      userDto.setEmail(currentUser.getEmail());
+      userDto.setUsername(currentUser.getUsername());
+      userDto.setName(currentUser.getName());
+      userDto.setFollowing(true);
+      return ResponseEntity.ok(userDto);
     }
-    return ResponseEntity.badRequest().body("Failed");
+    return ResponseEntity.badRequest().build();
   }
 
   @PostMapping(value = "/{username}/follow", consumes = "multipart/form-data")
-  ResponseEntity<String> followUser(@PathVariable("username") String username,
-                                    @RequestParam(value = "follow", required = true) Boolean follow,
-                                    Principal principal)
+  ResponseEntity<UserDto> followUser(@PathVariable("username") String username,
+                                     @RequestParam(value = "follow", required = true) Boolean follow,
+                                     Principal principal)
   {
     List<User> currentUserList = userService.getFriendList(principal.getName());
     User userToFollow = userService.getUserByUsername(username).get();
-    UserDto userDto = new UserDto();
     if (follow && !currentUserList.contains(userToFollow)) {
       currentUserList.add(userToFollow);
     }
@@ -128,16 +131,17 @@ public class UserController
       currentUserList.remove(userToFollow);
     }
     else {
-      return ResponseEntity.badRequest().body("Failed - already subscriber or not subscribed.");
+      return ResponseEntity.badRequest().build();
     }
 
     userService.saveUserFriendList(principal.getName(), currentUserList);
 
-//    userDto.setEmail(userToFollow.getEmail());
-//    userDto.setUsername(userToFollow.getUsername());
-//    userDto.setName(userToFollow.getName());
-//    userDto.setFollowing(currentUserList.contains(userToFollow));
-    return ResponseEntity.ok("Successful operation");
+    UserDto userDto = new UserDto();
+    userDto.setEmail(userToFollow.getEmail());
+    userDto.setUsername(userToFollow.getUsername());
+    userDto.setName(userToFollow.getName());
+    userDto.setFollowing(currentUserList.contains(userToFollow));
+    return ResponseEntity.ok(userDto);
   }
 
   @GetMapping("/{username}/gossips")
@@ -147,24 +151,29 @@ public class UserController
                                                   Principal principal)
   {
     User userCheck = userService.getUserByUsername(username).get();
-    PageRequest pageRequest = PageRequest.of(pageNo, pageSize, Sort.by("datetime"));
+    PageRequest pageRequest = PageRequest.of(pageNo, pageSize);
     Page<Gossip> userGossips = gossipService.findAllGossipsByUser(userCheck, pageRequest);
-    List<GossipDto> gossipsToShow = new ArrayList<>();
-    for (Gossip gossip : userGossips) {
-      GossipDto gDto = new GossipDto();
-      gDto.setId(Integer.toString(gossip.getId(), 32));
-      gDto.setUsername(gossip.getUser().getUsername());
-      gDto.setDatetime(gossip.getDatetime());
-      gDto.setText(gossip.getGossip());
-      gossipsToShow.add(gDto);
+    if (pageNo > userGossips.getTotalPages()) {
+      return ResponseEntity.notFound().build();
     }
+    else {
+      List<GossipDto> gossipsToShow = new ArrayList<>();
+      for (Gossip gossip : userGossips) {
+        GossipDto gDto = new GossipDto();
+        gDto.setId(Integer.toString(gossip.getId(), 32));
+        gDto.setUsername(gossip.getUser().getUsername());
+        gDto.setDatetime(gossip.getDatetime());
+        gDto.setText(gossip.getText());
+        gossipsToShow.add(gDto);
+      }
 
-    Page<User> page = new PageImpl(gossipsToShow, pageRequest, gossipsToShow.size());
-    PageDto pageDto = new PageDto();
-    pageDto.setNumberOfElemets(page.getSize());
-    pageDto.setTotalElements(page.getTotalElements());
-    pageDto.setContent(page.getContent());
-    return ResponseEntity.ok(pageDto);
+
+      PageDto pageDto = new PageDto();
+      pageDto.setNumberOfElemets(pageSize);
+      pageDto.setTotalElements(userGossips.getContent().size());
+      pageDto.setContent(gossipsToShow);
+
+      return ResponseEntity.ok(pageDto);
+    }
   }
-
 }

@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -36,8 +37,8 @@ public class GossipController
     this.eventPublisher = eventPublisher;
   }
 
-  @PostMapping(consumes = "multipart/form-data")
-  public ResponseEntity<GossipDto> postGossip(@RequestParam String text,
+  @PostMapping(value = "", consumes = {"multipart/form-data"}, produces = {"application/json"})
+  public ResponseEntity<GossipDto> postGossip(@RequestParam(value = "text", required = true) @Valid String text,
                                               Principal principal)
   {
     User currentUser = userService.getUserByUsername(principal.getName()).get();
@@ -67,7 +68,7 @@ public class GossipController
   {
     Pageable pageRequest = PageRequest.of(pageNo, pageSize);
     Optional<User> currentUser = userService.getUserByUsername(principal.getName());
-    Page<Gossip> friendsGossips = gossipService.getAllGossipsOfFriends(principal.getName(), pageRequest);
+    Page<Gossip> friendsGossips = gossipService.getAllGossipsOfFriends(userService.getUserByUsername(principal.getName()).get(), pageRequest);
     if (pageNo > friendsGossips.getTotalPages()) {
       return ResponseEntity.notFound().build();
     }
@@ -84,7 +85,7 @@ public class GossipController
 
       PageDto pageDto = new PageDto();
       pageDto.setNumberOfElemets(pageSize);
-      pageDto.setTotalElements(friendsGossips.getContent().size());
+      pageDto.setTotalElements(friendsGossips.getTotalElements());
       pageDto.setContent(gossipDtos);
       return ResponseEntity.ok(pageDto);
     }

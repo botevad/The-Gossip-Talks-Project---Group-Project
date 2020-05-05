@@ -9,7 +9,7 @@ public interface GossipService
 {
   Page<Gossip> findAllGossipsByUser(User user, Pageable pageable);
 
-  Page<Gossip> getAllGossipsOfFriends(String username, Pageable pageable);
+  Page<Gossip> getAllGossipsOfFriends(User user, Pageable pageable);
 
   void saveGossip(Gossip gossip);
 }

@@ -32,9 +32,9 @@ public class GossipServiceImpl implements GossipService
   }
 
   @Override
-  public Page<Gossip> getAllGossipsOfFriends(String username, Pageable pageable)
+  public Page<Gossip> getAllGossipsOfFriends(User user, Pageable pageable)
   {
-    return gossipsRepository.findAllGossipsOfFriend(pageable).get();
+    return gossipsRepository.findAllGossipsOfFriends(user.getId(), pageable).get();
   }
 
   @Override

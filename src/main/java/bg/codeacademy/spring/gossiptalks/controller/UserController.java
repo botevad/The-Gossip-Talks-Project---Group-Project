@@ -58,12 +58,9 @@ public class UserController
       userDto.setEmail(user.getEmail());
       userDto.setFollowing(friendList.contains(user));
       showUsersDto.add(userDto);
-
     }
-    showUsersDto.remove(userService.getUserByUsername(principal.getName()));
     return ResponseEntity.ok(showUsersDto);
   }
-
 
   @PostMapping(consumes = {"multipart/form-data"})
   public ResponseEntity<String> createUser(@RequestParam(value = "email", required = true) String email,
@@ -167,10 +164,9 @@ public class UserController
         gossipsToShow.add(gDto);
       }
 
-
       PageDto pageDto = new PageDto();
       pageDto.setNumberOfElemets(pageSize);
-      pageDto.setTotalElements(userGossips.getContent().size());
+      pageDto.setTotalElements(userGossips.getTotalElements());
       pageDto.setContent(gossipsToShow);
 
       return ResponseEntity.ok(pageDto);

@@ -1,6 +1,5 @@
 package bg.codeacademy.spring.gossiptalks.dto;
 
-import bg.codeacademy.spring.gossiptalks.model.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 public class PageDto
 {
-  private Integer    numberOfElemets;
-  private Long       totalElements;
-  private List<User> content;
+  private Integer         numberOfElemets;
+  private Integer         totalElements;
+  private List<GossipDto> content;
 }

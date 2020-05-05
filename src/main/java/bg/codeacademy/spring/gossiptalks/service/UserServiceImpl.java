@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,12 +30,11 @@ public class UserServiceImpl implements UserService
   @Override
   public List<User> getAllUsers(String name)
   {
-    Optional<List<User>> allUsers = userRepository.findByNameContaining(name);
-    if (!allUsers.isPresent()) {
+    List<User> allUsers = userRepository.findByNameContaining(name);
+    if (allUsers.isEmpty()) {
       return sortedUsers(userRepository.findAll());
-
     }
-    return sortedUsers(allUsers.get());
+    return sortedUsers(allUsers);
   }
 
   @Override
@@ -51,17 +51,17 @@ public class UserServiceImpl implements UserService
   @Override
   public Optional<User> getUserByUsername(String username)
   {
-
     return Optional.ofNullable(userRepository.findByUsername(username).orElse(null));
   }
 
   @Override
   public List<User> getFriendList(String username)
   {
-    User user = getUserByUsername(username).get();
-
-
-    return user.getFriendList();
+    List<User> userFriendList = getUserByUsername(username).get().getFriendList();
+    if (userFriendList.contains(getUserByUsername(username))) {
+      userFriendList.remove(getUserByUsername(username));
+    }
+    return userFriendList;
   }
 
   @Override
@@ -89,15 +89,12 @@ public class UserServiceImpl implements UserService
     userRepository.save(userToSave);
   }
 
-  public Integer getGossipsCount(User user)
-  {
-    return (gossipsRepository.findAllByUser(user).size());
-  }
-
   public List<User> sortedUsers(List<User> users)
   {
     return users.stream()
-        .sorted((u1, u2) -> gossipsRepository.findAllByUser(u1).size() - gossipsRepository.findAllByUser(u2).size())
+        .sorted(Comparator
+            .comparingInt(u -> gossipsRepository.findAllByUser((User) u).size())
+            .reversed())
         .collect(Collectors.toList());
   }
 }

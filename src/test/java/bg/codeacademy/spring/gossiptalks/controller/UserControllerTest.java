@@ -10,6 +10,7 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import static org.hamcrest.Matchers.equalTo;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = Main.class)
@@ -30,7 +31,7 @@ public class UserControllerTest extends AbstractTestNGSpringContextTests
     RestAssured.given().auth().basic("admin", "1234")
         .when().get("/api/v1/users/me").then().assertThat().statusCode(200).and()
         .contentType(ContentType.JSON).body("username", equalTo("admin")
-    ,"name", equalTo("Administrator"),
+        , "name", equalTo("Administrator"),
         "email", equalTo("admin@email.com"));
   }
 

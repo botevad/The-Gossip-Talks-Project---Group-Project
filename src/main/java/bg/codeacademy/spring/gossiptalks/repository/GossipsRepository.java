@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,6 +21,6 @@ public interface GossipsRepository extends JpaRepository<Gossip, Integer>
 
   Optional<Page<Gossip>> findAllByUserOrderByDatetimeDesc(User user, Pageable pageable);
 
-  @Query(value = "SELECT * FROM GOSSIP WHERE USER_ID  IN (SELECT DISTINCT USER_ID  FROM USER_FRIEND_LIST) ORDER BY DATETIME DESC", nativeQuery = true)
-  Optional<Page<Gossip>> findAllGossipsOfFriend(Pageable pageable);
+  @Query(value = "SELECT * FROM GOSSIP g WHERE USER_ID in (SELECT FRIEND_LIST_ID FROM USER_FRIEND_LIST uf WHERE uf.USER_ID = ?1) ORDER BY DATETIME DESC", nativeQuery = true)
+  Optional<Page<Gossip>> findAllGossipsOfFriends(@Param("user_id") Integer user_id, Pageable pageable);
 }

@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
@@ -21,7 +22,7 @@ public class GossipDto
 
   private LocalDateTime datetime;
 
-  @NotNull(message = "The gossip cannot be NULL!")
+  @NotBlank(message = "The gossip cannot be blank!")
   @NotHTML
   private String text;
 

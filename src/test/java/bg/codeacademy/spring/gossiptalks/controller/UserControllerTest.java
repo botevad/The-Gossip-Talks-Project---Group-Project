@@ -34,10 +34,5 @@ public class UserControllerTest extends AbstractTestNGSpringContextTests
         "email", equalTo("admin@email.com"));
   }
 
-  @Test
-  public void equalsContract() {
-    EqualsVerifier.forClass(UserServiceImpl.class).report();
-  }
-
 
 }

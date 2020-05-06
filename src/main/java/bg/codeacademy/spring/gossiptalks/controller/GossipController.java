@@ -19,7 +19,6 @@ import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/gossips")
@@ -37,7 +36,7 @@ public class GossipController
     this.eventPublisher = eventPublisher;
   }
 
-  @PostMapping(value = "", consumes = {"multipart/form-data"}, produces = {"application/json"})
+  @PostMapping(consumes = {"multipart/form-data"})
   public ResponseEntity<GossipDto> postGossip(@RequestParam(value = "text", required = true) @Valid String text,
                                               Principal principal)
   {
@@ -67,7 +66,6 @@ public class GossipController
 
   {
     Pageable pageRequest = PageRequest.of(pageNo, pageSize);
-    Optional<User> currentUser = userService.getUserByUsername(principal.getName());
     Page<Gossip> friendsGossips = gossipService.getAllGossipsOfFriends(userService.getUserByUsername(principal.getName()).get(), pageRequest);
     if (pageNo > friendsGossips.getTotalPages()) {
       return ResponseEntity.notFound().build();

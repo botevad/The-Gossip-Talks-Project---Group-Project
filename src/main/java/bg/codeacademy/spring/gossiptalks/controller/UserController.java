@@ -16,8 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -39,25 +38,28 @@ public class UserController
 
   @GetMapping
   @ResponseBody
-  public ResponseEntity<List<UserDto>> showAllUsers(@RequestParam(value = "name", required = false, defaultValue = "*") String name,
-                                                    @RequestParam(value = "f", required = false, defaultValue = "false") Boolean f,
-                                                    Principal principal)
+  public ResponseEntity<Set<UserDto>> showAllUsers(@RequestParam(value = "name", required = false, defaultValue = "") String name,
+                                                   @RequestParam(value = "f", required = false, defaultValue = "false") Boolean f,
+                                                   Principal principal)
   {
-    List<UserDto> showUsersDto = new ArrayList<>();
-    List<User> allUsers = userService.getAllUsers(name);
-    List<User> friendList = userService.getFriendList(principal.getName());
+    Set<UserDto> showUsersDto = new LinkedHashSet<>();
+    Set<User> allUsers = userService.getAllUsers(name);
+    Set<User> friendList = userService.getFriendList(principal.getName());
     if (f) {
-      allUsers = allUsers.stream()
-          .filter(user -> friendList.contains(user))
-          .collect(Collectors.toList());
+      allUsers = allUsers.stream().filter(user -> friendList.contains(user)).collect(Collectors.toSet());
     }
     for (User user : allUsers) {
-      UserDto userDto = new UserDto();
-      userDto.setUsername(user.getUsername());
-      userDto.setName(user.getName());
-      userDto.setEmail(user.getEmail());
-      userDto.setFollowing(friendList.contains(user));
-      showUsersDto.add(userDto);
+      if (user.getUsername().equals(principal.getName())) {
+        continue;
+      }
+      else {
+        UserDto userDto = new UserDto();
+        userDto.setUsername(user.getUsername());
+        userDto.setName(user.getName());
+        userDto.setEmail(user.getEmail());
+        userDto.setFollowing(friendList.contains(user));
+        showUsersDto.add(userDto);
+      }
     }
     return ResponseEntity.ok(showUsersDto);
   }
@@ -119,7 +121,7 @@ public class UserController
                                      @RequestParam(value = "follow", required = true) Boolean follow,
                                      Principal principal)
   {
-    List<User> currentUserList = userService.getFriendList(principal.getName());
+    Set<User> currentUserList = userService.getFriendList(principal.getName());
     User userToFollow = userService.getUserByUsername(username).get();
     if (follow && !currentUserList.contains(userToFollow)) {
       currentUserList.add(userToFollow);

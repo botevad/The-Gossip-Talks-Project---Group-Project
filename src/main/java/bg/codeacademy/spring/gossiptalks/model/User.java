@@ -7,7 +7,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -29,7 +29,7 @@ public class User
   @Column(nullable = false)
   private String     name;
   @ManyToMany
-  private List<User> friendList;
+  private Set<User>  friendList;
 
   private Role role = Role.USER;
 

@@ -1,10 +1,8 @@
 package bg.codeacademy.spring.gossiptalks.controller;
 
 import bg.codeacademy.spring.gossiptalks.Main;
-import bg.codeacademy.spring.gossiptalks.service.UserServiceImpl;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import nl.jqno.equalsverifier.EqualsVerifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;

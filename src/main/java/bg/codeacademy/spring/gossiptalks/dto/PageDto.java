@@ -12,6 +12,6 @@ import java.util.List;
 public class PageDto
 {
   private Integer         numberOfElemets;
-  private Integer         totalElements;
+  private Long            totalElements;
   private List<GossipDto> content;
 }

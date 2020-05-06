@@ -7,9 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 @Service
 public class UserServiceImpl implements UserService
@@ -27,14 +26,9 @@ public class UserServiceImpl implements UserService
   }
 
   @Override
-  public List<User> getAllUsers(String name)
+  public Set<User> getAllUsers(String username)
   {
-    Optional<List<User>> allUsers = userRepository.findByNameContaining(name);
-    if (!allUsers.isPresent()) {
-      return sortedUsers(userRepository.findAll());
-
-    }
-    return sortedUsers(allUsers.get());
+    return userRepository.findUser(username);
   }
 
   @Override
@@ -51,28 +45,27 @@ public class UserServiceImpl implements UserService
   @Override
   public Optional<User> getUserByUsername(String username)
   {
-
     return Optional.ofNullable(userRepository.findByUsername(username).orElse(null));
   }
 
   @Override
-  public List<User> getFriendList(String username)
+  public Set<User> getFriendList(String username)
   {
-    User user = getUserByUsername(username).get();
-
-
-    return user.getFriendList();
+    Set<User> userFriendList = getUserByUsername(username).get().getFriendList();
+    if (!userFriendList.contains(getUserByUsername(username))) {
+      userFriendList.add(getUserByUsername(username).get());
+    }
+    return userFriendList;
   }
 
   @Override
   public void followUser(String username, User userToAdd)
   {
     User currentUser = getUserByUsername(username).get();
-    List<User> friendList = getFriendList(username);
+    Set<User> friendList = getFriendList(username);
     friendList.add(userToAdd);
     currentUser.setFriendList(friendList);
     userRepository.save(currentUser);
-
   }
 
   @Override
@@ -82,22 +75,11 @@ public class UserServiceImpl implements UserService
   }
 
   @Override
-  public void saveUserFriendList(String username, List<User> friendList)
+  public void saveUserFriendList(String username, Set<User> friendList)
   {
     User userToSave = userRepository.findByUsername(username).get();
     userToSave.setFriendList(friendList);
     userRepository.save(userToSave);
   }
 
-  public Integer getGossipsCount(User user)
-  {
-    return (gossipsRepository.findAllByUser(user).size());
-  }
-
-  public List<User> sortedUsers(List<User> users)
-  {
-    return users.stream()
-        .sorted((u1, u2) -> gossipsRepository.findAllByUser(u1).size() - gossipsRepository.findAllByUser(u2).size())
-        .collect(Collectors.toList());
-  }
 }

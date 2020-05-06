@@ -27,14 +27,13 @@ public class GossipServiceImpl implements GossipService
   @Override
   public Page<Gossip> findAllGossipsByUser(User user, Pageable pageable)
   {
-
-    return gossipsRepository.findAllByUserOrderByDatetimeDesc(user, pageable).get();
+    return gossipsRepository.findAllGossipsOfUser(user.getId(), pageable);
   }
 
   @Override
-  public Page<Gossip> getAllGossipsOfFriends(String username, Pageable pageable)
+  public Page<Gossip> getAllGossipsOfFriends(User user, Pageable pageable)
   {
-    return gossipsRepository.findAllGossipsOfFriend(pageable).get();
+    return gossipsRepository.findAllGossipsOfFriends(user.getId(), pageable);
   }
 
   @Override

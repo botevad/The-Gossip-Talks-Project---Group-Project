@@ -16,8 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -39,39 +38,38 @@ public class UserController
 
   @GetMapping
   @ResponseBody
-  public ResponseEntity<List<UserDto>> showAllUsers(@RequestParam(value = "name", required = false, defaultValue = "*") String name,
-                                                    @RequestParam(value = "f", required = false, defaultValue = "false") Boolean f,
-                                                    Principal principal)
+  public ResponseEntity<Set<UserDto>> showAllUsers(@RequestParam(value = "name", required = false, defaultValue = "") @Valid String username,
+                                                   @RequestParam(value = "f", required = false, defaultValue = "false") Boolean f,
+                                                   Principal principal)
   {
-    List<UserDto> showUsersDto = new ArrayList<>();
-    List<User> allUsers = userService.getAllUsers(name);
-    List<User> friendList = userService.getFriendList(principal.getName());
+    Set<UserDto> showUsersDto = new LinkedHashSet<>();
+    Set<User> allUsers = userService.getAllUsers(username);
+    Set<User> friendList = userService.getFriendList(principal.getName());
     if (f) {
-      allUsers = allUsers.stream()
-          .filter(user -> friendList.contains(user))
-          .collect(Collectors.toList());
+      allUsers = allUsers.stream().filter(user -> friendList.contains(user)).collect(Collectors.toSet());
     }
     for (User user : allUsers) {
-      UserDto userDto = new UserDto();
-      userDto.setUsername(user.getUsername());
-      userDto.setName(user.getName());
-      userDto.setEmail(user.getEmail());
-      userDto.setFollowing(friendList.contains(user));
-      showUsersDto.add(userDto);
-
+      if (user.getUsername().equals(principal.getName())) {
+        continue;
+      }
+      else {
+        UserDto userDto = new UserDto();
+        userDto.setUsername(user.getUsername());
+        userDto.setName(user.getName());
+        userDto.setEmail(user.getEmail());
+        userDto.setFollowing(friendList.contains(user));
+        showUsersDto.add(userDto);
+      }
     }
-    showUsersDto.remove(userService.getUserByUsername(principal.getName()));
     return ResponseEntity.ok(showUsersDto);
   }
 
-
   @PostMapping(consumes = {"multipart/form-data"})
-  public ResponseEntity<String> createUser(@RequestParam(value = "email", required = true) String email,
+  public ResponseEntity<String> createUser(@RequestParam(value = "email") @Valid String email,
                                            @RequestParam(value = "name", required = false, defaultValue = "") String name,
-                                           @RequestParam(value = "password", required = true) String password,
-                                           @RequestParam(value = "username", required = true) String username,
-                                           @RequestParam(value = "following", required = false, defaultValue = "false") Boolean following,
-                                           Principal principal)
+                                           @RequestParam(value = "password") String password,
+                                           @RequestParam(value = "username") @Valid String username,
+                                           @RequestParam(value = "following", required = false, defaultValue = "false") Boolean following)
   {
     User user = new User();
     user.setEmail(email);
@@ -99,13 +97,15 @@ public class UserController
   }
 
   @PostMapping("/me")
-  public ResponseEntity<UserDto> changeUserPassword(@RequestParam(value = "password", required = true) String password,
-                                                    @RequestParam(value = "passwordConfirmation", required = true) String passwordConfirmation,
-                                                    @RequestParam(value = "oldPassword", required = true) String oldPassword,
+  public ResponseEntity<UserDto> changeUserPassword(@RequestParam(value = "password") String password,
+                                                    @RequestParam(value = "passwordConfirmation") String passwordConfirmation,
+                                                    @RequestParam(value = "oldPassword") String oldPassword,
                                                     Principal principal)
   {
-
-    if (userService.changePassword(userService.getUserByUsername(principal.getName()).get(), oldPassword, password)) {
+    if (userService.changePassword(userService.getUserByUsername(principal.getName()).get(), oldPassword, password)
+    && password.equals(passwordConfirmation)
+    )
+    {
       User currentUser = userService.getUserByUsername(principal.getName()).get();
       UserDto userDto = new UserDto();
       userDto.setEmail(currentUser.getEmail());
@@ -118,11 +118,11 @@ public class UserController
   }
 
   @PostMapping(value = "/{username}/follow", consumes = "multipart/form-data")
-  ResponseEntity<UserDto> followUser(@PathVariable("username") String username,
-                                     @RequestParam(value = "follow", required = true) Boolean follow,
+  ResponseEntity<UserDto> followUser(@PathVariable("username") @Valid String username,
+                                     @RequestParam(value = "follow") Boolean follow,
                                      Principal principal)
   {
-    List<User> currentUserList = userService.getFriendList(principal.getName());
+    Set<User> currentUserList = userService.getFriendList(principal.getName());
     User userToFollow = userService.getUserByUsername(username).get();
     if (follow && !currentUserList.contains(userToFollow)) {
       currentUserList.add(userToFollow);
@@ -167,10 +167,9 @@ public class UserController
         gossipsToShow.add(gDto);
       }
 
-
       PageDto pageDto = new PageDto();
       pageDto.setNumberOfElemets(pageSize);
-      pageDto.setTotalElements(userGossips.getContent().size());
+      pageDto.setTotalElements(userGossips.getTotalElements());
       pageDto.setContent(gossipsToShow);
 
       return ResponseEntity.ok(pageDto);

@@ -7,7 +7,8 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import java.util.List;
+import javax.validation.constraints.NotEmpty;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -20,16 +21,17 @@ public class User
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Integer    id;
   @Column(unique = true, nullable = false)
-  @NotBlank
+  @NotEmpty
   private String     username;
   @Column(nullable = false)
   private String     password;
   @Column(unique = true, nullable = false)
+  @NotBlank
   private String     email;
   @Column(nullable = false)
   private String     name;
   @ManyToMany
-  private List<User> friendList;
+  private Set<User>  friendList;
 
   private Role role = Role.USER;
 

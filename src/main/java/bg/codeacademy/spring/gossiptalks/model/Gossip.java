@@ -20,8 +20,8 @@ public class Gossip
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Integer       id;
   @Column(updatable = false)
-  @NotBlank(message = "The gossip cannot be blank!")
   @NotHTML
+  @NotBlank
   private String        text;
   @ManyToOne
   private User          user;

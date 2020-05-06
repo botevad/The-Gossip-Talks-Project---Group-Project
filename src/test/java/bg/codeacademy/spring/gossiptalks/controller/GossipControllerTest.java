@@ -4,7 +4,6 @@ import bg.codeacademy.spring.gossiptalks.Main;
 import bg.codeacademy.spring.gossiptalks.enums.Role;
 import bg.codeacademy.spring.gossiptalks.model.User;
 import bg.codeacademy.spring.gossiptalks.repository.UserRepository;
-import bg.codeacademy.spring.gossiptalks.service.UserServiceImpl;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,12 +16,9 @@ import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 import static org.hamcrest.Matchers.*;
 
-@ActiveProfiles("dev")
+@ActiveProfiles("dev2")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = Main.class)
 public class GossipControllerTest extends AbstractTestNGSpringContextTests
 {
@@ -46,21 +42,24 @@ public class GossipControllerTest extends AbstractTestNGSpringContextTests
   @BeforeClass
   public void create_users_for_usage()
   {
-    User admin = new User();
-    admin.setUsername("admin");
-    admin.setName("Administrator");
-    admin.setEmail("admin@email.com");
-    admin.setPassword(bCryptPasswordEncoder.encode("1234"));
-    admin.setRole(Role.ADMIN);
+    User admin2 = new User();
+    admin2.setId(99);
+    admin2.setUsername("admin2");
+    admin2.setName("Administrator");
+    admin2.setEmail("admin2@email.com");
+    admin2.setPassword(bCryptPasswordEncoder.encode("1234"));
+    admin2.setRole(Role.ADMIN);
+
+    userRepository.save(admin2);
 
     User user = new User();
+    user.setId(100);
     user.setUsername("user");
     user.setName("User");
     user.setEmail("user@mail.bg");
     user.setPassword(bCryptPasswordEncoder.encode("12345"));
     user.setRole(Role.USER);
 
-    userRepository.save(admin);
     userRepository.save(user);
   }
 
@@ -84,7 +83,7 @@ public class GossipControllerTest extends AbstractTestNGSpringContextTests
   public void post_gossip_response_200_1()
   {
     RestAssured.given()
-        .auth().basic("admin", "1234")
+        .auth().basic("admin2", "1234")
         .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
         .multiPart("text", "This is a gossip")
         .when()
@@ -98,7 +97,7 @@ public class GossipControllerTest extends AbstractTestNGSpringContextTests
   public void post_gossip_response_500()
   {
     RestAssured.given()
-        .auth().basic("admin", "1234")
+        .auth().basic("admin2", "1234")
         .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
         .multiPart("text", "")
         .when()
@@ -123,7 +122,7 @@ public class GossipControllerTest extends AbstractTestNGSpringContextTests
   public void get_gossips_200_1()
   {
     RestAssured.given()
-        .auth().basic("admin", "1234")
+        .auth().basic("admin2", "1234")
         .when()
         .get("/api/v1/gossips")
         .then().assertThat()
@@ -143,6 +142,4 @@ public class GossipControllerTest extends AbstractTestNGSpringContextTests
         .then().assertThat()
         .statusCode(404);
   }
-
-
 }

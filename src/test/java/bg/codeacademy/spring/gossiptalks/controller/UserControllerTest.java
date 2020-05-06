@@ -45,19 +45,23 @@ public class UserControllerTest extends AbstractTestNGSpringContextTests
   @BeforeClass
   public void create_users_for_usage()
   {
-    User admin = new User();
-    admin.setUsername("admin");
-    admin.setName("Administrator");
-    admin.setEmail("admin@email.com");
-    admin.setPassword(bCryptPasswordEncoder.encode("1234"));
-    admin.setRole(Role.ADMIN);
+    User admin1 = new User();
+    admin1.setUsername("admin1");
+    admin1.setName("Administrator");
+    admin1.setEmail("admin1@email.com");
+    admin1.setPassword(bCryptPasswordEncoder.encode("1234"));
+    admin1.setRole(Role.ADMIN);
+
+    userRepository.save(admin1);
 
     User user = new User();
     user.setUsername("user");
     user.setName("User");
-    user.setEmail("user@mail.bg");
+    user.setEmail("user@gmail.bg");
     user.setPassword(bCryptPasswordEncoder.encode("12345"));
     user.setRole(Role.USER);
+
+    userRepository.save(user);
 
     User user1 = new User();
     user1.setUsername("user1");
@@ -66,8 +70,6 @@ public class UserControllerTest extends AbstractTestNGSpringContextTests
     user1.setPassword(bCryptPasswordEncoder.encode("pa$$word"));
     user1.setRole(Role.USER);
 
-    userRepository.save(admin);
-    userRepository.save(user);
     userRepository.save(user1);
   }
 
@@ -75,15 +77,15 @@ public class UserControllerTest extends AbstractTestNGSpringContextTests
   public void show_current_user_200()
   {
     RestAssured.given()
-        .auth().basic("admin", "1234")
+        .auth().basic("admin1", "1234")
         .when()
         .get("/api/v1/users/me")
         .then().assertThat().statusCode(200)
         .and()
         .contentType(ContentType.JSON)
-        .body("username", equalTo("admin")
+        .body("username", equalTo("admin1")
         , "name", equalTo("Administrator"),
-        "email", equalTo("admin@email.com"));
+        "email", equalTo("admin1@email.com"));
   }
 
   @Test
@@ -174,7 +176,7 @@ public class UserControllerTest extends AbstractTestNGSpringContextTests
   public void change_password_400_1()
   {
     RestAssured.given()
-        .auth().basic("admin", "1234")
+        .auth().basic("admin1", "1234")
         .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
         .multiPart("password", "p@ssword")
         .multiPart("passwordConfirmation", "p@ssword")
@@ -204,7 +206,7 @@ public class UserControllerTest extends AbstractTestNGSpringContextTests
   public void show_all_users_200()
   {
     RestAssured.given()
-        .auth().basic("admin", "1234")
+        .auth().basic("admin1", "1234")
         .when()
         .get("/api/v1/users")
         .then()
@@ -215,7 +217,7 @@ public class UserControllerTest extends AbstractTestNGSpringContextTests
   public void follow_user_200()
   {
     RestAssured.given()
-        .auth().basic("admin", "1234")
+        .auth().basic("admin1", "1234")
         .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
       .pathParam("username", "user")
       .multiPart("follow", "true")
@@ -229,7 +231,7 @@ public class UserControllerTest extends AbstractTestNGSpringContextTests
   public void follow_user_200_1()
   {
     RestAssured.given()
-        .auth().basic("admin", "1234")
+        .auth().basic("admin1", "1234")
         .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
         .pathParam("username", "user1")
         .multiPart("follow", "true")
@@ -243,7 +245,7 @@ public class UserControllerTest extends AbstractTestNGSpringContextTests
   public void follow_user_400()
   {
     RestAssured.given()
-        .auth().basic("admin", "1234")
+        .auth().basic("admin1", "1234")
         .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
         .pathParam("username", "user")
         .multiPart("follow", "true")
@@ -257,7 +259,7 @@ public class UserControllerTest extends AbstractTestNGSpringContextTests
   public void unfollow_user_200()
   {
     RestAssured.given()
-        .auth().basic("admin", "1234")
+        .auth().basic("admin1", "1234")
         .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
         .pathParam("username", "user")
         .multiPart("follow", "false")
@@ -271,7 +273,7 @@ public class UserControllerTest extends AbstractTestNGSpringContextTests
   public void unfollow_user_400()
   {
     RestAssured.given()
-        .auth().basic("admin", "1234")
+        .auth().basic("admin1", "1234")
         .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
         .pathParam("username", "user")
         .multiPart("follow", "false")
@@ -285,7 +287,7 @@ public class UserControllerTest extends AbstractTestNGSpringContextTests
   public void show_all_parameterized_200()
   {
     RestAssured.given()
-        .auth().basic("admin", "1234")
+        .auth().basic("admin1", "1234")
         .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
         .multiPart("name", "user1")
         .multiPart("f", "true")
@@ -302,7 +304,7 @@ public class UserControllerTest extends AbstractTestNGSpringContextTests
   public void show_all_parameterized_200_1()
   {
     RestAssured.given()
-        .auth().basic("admin", "1234")
+        .auth().basic("admin1", "1234")
         .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
         .multiPart("name", "user")
         .when()
@@ -314,7 +316,7 @@ public class UserControllerTest extends AbstractTestNGSpringContextTests
   public void show_all_parameterized_200_2()
   {
     RestAssured.given()
-        .auth().basic("admin", "1234")
+        .auth().basic("admin1", "1234")
         .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
         .multiPart("f", "true")
         .when()
@@ -326,7 +328,7 @@ public class UserControllerTest extends AbstractTestNGSpringContextTests
   public void get_gossips_of_user_200()
   {
     RestAssured.given()
-        .auth().basic("admin", "1234")
+        .auth().basic("admin1", "1234")
         .pathParam("username", "user")
         .when()
         .get("/api/v1/users/{username}/gossips")
@@ -338,7 +340,7 @@ public class UserControllerTest extends AbstractTestNGSpringContextTests
   public void get_gossips_of_user_200_param()
   {
     RestAssured.given()
-        .auth().basic("admin", "1234")
+        .auth().basic("admin1", "1234")
         .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
         .pathParam("username", "user")
         .multiPart("pageNo", "1000")
@@ -347,6 +349,4 @@ public class UserControllerTest extends AbstractTestNGSpringContextTests
         .then().assertThat()
         .statusCode(404);
   }
-
-
 }

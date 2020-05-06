@@ -47,7 +47,7 @@ public class GossipController
     gossipService.saveGossip(gossip);
 
     GossipDto gossipDto = new GossipDto();
-    gossipDto.setId(Integer.toString(gossip.getId(), 32));
+    gossipDto.setId((Integer.toString(gossip.getId(), 32)).toUpperCase());
     gossipDto.setText(gossip.getText());
     gossipDto.setUsername(gossip.getUser().getUsername());
     gossipDto.setDatetime(gossip.getDatetime());
@@ -72,7 +72,7 @@ public class GossipController
       List<GossipDto> gossipDtos = new ArrayList<>();
       for (Gossip gossip : friendsGossips.getContent()) {
         GossipDto gossipDto = new GossipDto();
-        gossipDto.setId(Integer.toString(gossip.getId(), 32));
+        gossipDto.setId((Integer.toString(gossip.getId(), 32)).toUpperCase());
         gossipDto.setUsername(gossip.getUser().getUsername());
         gossipDto.setDatetime(gossip.getDatetime());
         gossipDto.setText(gossip.getText());

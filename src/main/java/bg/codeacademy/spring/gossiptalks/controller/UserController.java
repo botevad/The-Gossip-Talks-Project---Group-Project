@@ -160,7 +160,7 @@ public class UserController
       List<GossipDto> gossipsToShow = new ArrayList<>();
       for (Gossip gossip : userGossips) {
         GossipDto gDto = new GossipDto();
-        gDto.setId(Integer.toString(gossip.getId(), 32));
+        gDto.setId((Integer.toString(gossip.getId(), 32)).toUpperCase());
         gDto.setUsername(gossip.getUser().getUsername());
         gDto.setDatetime(gossip.getDatetime());
         gDto.setText(gossip.getText());

@@ -14,14 +14,12 @@ import java.util.Set;
 public class UserServiceImpl implements UserService
 {
   private final UserRepository        userRepository;
-  private final GossipsRepository     gossipsRepository;
   private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
   @Autowired
   public UserServiceImpl(UserRepository userRepository, GossipsRepository gossipsRepository, BCryptPasswordEncoder bCryptPasswordEncoder)
   {
     this.userRepository = userRepository;
-    this.gossipsRepository = gossipsRepository;
     this.bCryptPasswordEncoder = bCryptPasswordEncoder;
   }
 

@@ -1,6 +1,7 @@
 package bg.codeacademy.spring.gossiptalks.model;
 
 import bg.codeacademy.spring.gossiptalks.enums.Role;
+import bg.codeacademy.spring.gossiptalks.validation.ValidEmail;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -27,6 +28,7 @@ public class User
   private String     password;
   @Column(unique = true, nullable = false)
   @NotBlank
+  @ValidEmail
   private String     email;
   @Column(nullable = false)
   private String     name;
@@ -35,11 +37,8 @@ public class User
 
   private Role role = Role.USER;
 
-  public Integer countFriends()
-  {
-    return this.getFriendList().size();
   }
-}
+
 
 
 

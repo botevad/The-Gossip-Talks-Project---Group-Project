@@ -1,5 +1,6 @@
 package bg.codeacademy.spring.gossiptalks.dto;
 
+import bg.codeacademy.spring.gossiptalks.validation.ValidEmail;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,6 +14,7 @@ import javax.validation.constraints.NotEmpty;
 public class UserDto
 {
   @NotBlank
+  @ValidEmail
   private String  email;
   @NotEmpty
   private String  username;

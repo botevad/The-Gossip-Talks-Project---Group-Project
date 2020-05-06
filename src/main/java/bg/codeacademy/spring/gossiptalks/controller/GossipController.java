@@ -26,14 +26,12 @@ public class GossipController
 {
   private final GossipServiceImpl         gossipService;
   private final UserServiceImpl           userService;
-  private final ApplicationEventPublisher eventPublisher;
 
   @Autowired
   public GossipController(GossipServiceImpl gossipService, UserServiceImpl userService, ApplicationEventPublisher eventPublisher)
   {
     this.gossipService = gossipService;
     this.userService = userService;
-    this.eventPublisher = eventPublisher;
   }
 
   @PostMapping(consumes = {"multipart/form-data"})

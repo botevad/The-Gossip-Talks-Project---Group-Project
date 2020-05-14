@@ -12,9 +12,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class GossipServiceImpl implements GossipService
 {
-  private final UserRepository    userRepository;
+  private final UserRepository    userRepository;//TODO: not used
   private final GossipsRepository gossipsRepository;
-  private final UserService       userService;
+  private final UserService       userService;//TODO: not used
 
   @Autowired
   public GossipServiceImpl(UserRepository userRepository, GossipsRepository gossipsRepository, UserService userService)

@@ -35,10 +35,10 @@ public class GossipController
   }
 
   @PostMapping(consumes = {"multipart/form-data"})
-  public ResponseEntity<GossipDto> postGossip(@RequestParam(value = "text") @Valid String text,
+  public ResponseEntity<GossipDto> postGossip(@RequestParam(value = "text") @Valid String text, //TODO @Valid on a String doesn't make much sense
                                               Principal principal)
   {
-    User currentUser = userService.getUserByUsername(principal.getName()).get();
+    User currentUser = userService.getUserByUsername(principal.getName()).get();//TODO: Optional.get without if present
 
     Gossip gossip = new Gossip();
     gossip.setText(text);
@@ -64,7 +64,7 @@ public class GossipController
 
   {
     Pageable pageRequest = PageRequest.of(pageNo, pageSize);
-    Page<Gossip> friendsGossips = gossipService.getAllGossipsOfFriends(userService.getUserByUsername(principal.getName()).get(), pageRequest);
+    Page<Gossip> friendsGossips = gossipService.getAllGossipsOfFriends(userService.getUserByUsername(principal.getName()).get(), pageRequest); //TODO: Optional.get without if present
     if (pageNo > friendsGossips.getTotalPages()) {
       return ResponseEntity.notFound().build();
     }

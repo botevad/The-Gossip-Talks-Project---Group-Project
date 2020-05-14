@@ -49,9 +49,9 @@ public class UserServiceImpl implements UserService
   @Override
   public Set<User> getFriendList(String username)
   {
-    Set<User> userFriendList = getUserByUsername(username).get().getFriendList();
-    if (!userFriendList.contains(getUserByUsername(username))) {
-      userFriendList.add(getUserByUsername(username).get());
+    Set<User> userFriendList = getUserByUsername(username).get().getFriendList();//TODO: Optional.get without if present
+    if (!userFriendList.contains(getUserByUsername(username))) {  //TODO: checkin if list of User contains Optional<User>, that will be difficult ;)
+      userFriendList.add(getUserByUsername(username).get());//TODO: Optional.get without if present
     }
     return userFriendList;
   }
@@ -59,7 +59,7 @@ public class UserServiceImpl implements UserService
   @Override
   public void followUser(String username, User userToAdd)
   {
-    User currentUser = getUserByUsername(username).get();
+    User currentUser = getUserByUsername(username).get();//TODO: Optional.get without if present
     Set<User> friendList = getFriendList(username);
     friendList.add(userToAdd);
     currentUser.setFriendList(friendList);
@@ -75,7 +75,7 @@ public class UserServiceImpl implements UserService
   @Override
   public void saveUserFriendList(String username, Set<User> friendList)
   {
-    User userToSave = userRepository.findByUsername(username).get();
+    User userToSave = userRepository.findByUsername(username).get();//TODO: Optional.get without if present
     userToSave.setFriendList(friendList);
     userRepository.save(userToSave);
   }
